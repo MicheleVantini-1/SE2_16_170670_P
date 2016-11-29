@@ -1,0 +1,19 @@
+{
+  "name": "se2_16_170670_p",
+  "version": "1.0.0",
+  "description": "Implementation of the mokups realized about the meals delivery system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MicheleVantini-1/SE2_16_170670_P.git"
+  },
+  "author": "Michele Vantini",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MicheleVantini-1/SE2_16_170670_P/issues"
+  },
+  "homepage": "https://github.com/MicheleVantini-1/SE2_16_170670_P#readme"
+}
