@@ -1,3 +1,6 @@
+var bind = require('bind');
+var serverConfig = require('./serverConfig.js');
+
 /**
 *	Function that produces a page starting from
 *	a template, its parameters and set the proper
@@ -8,7 +11,7 @@
 *	@param response - the response that has to be modified
 *	@param headers - the headers that has to be set to the response
 */
-function bindToTemplate(template, parameters, response, headers)
+var bindToTemplateWithHeaders = function bindToTemplate(template, parameters, response, headers)
 {
 	bind.toFile(
 		template
@@ -43,4 +46,5 @@ function bindToTemplate(template, parameters, response)
 	);
 }
 
+exports.bindToTemplateWithHeaders = bindToTemplateWithHeaders;
 exports.bindToTemplate = bindToTemplate;

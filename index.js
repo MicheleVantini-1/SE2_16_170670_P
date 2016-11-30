@@ -2,18 +2,14 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var bind = require('bind');
 var session = require("express-session");
+var cookieParser = require('cookie-parser');
 var serverConfig = require('./serverConfig.js');
 var login = require('./login.js');
 var bindWrapper = require('./bindWrapper.js');
 
 var app = express();
 
-// port number used as default 
-var port = 8080;
-// address used as default
-var address = "127.0.0.1";
-var completeUrl = "http://" + address + ":" + port;
-
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));    // to support URL-encoded bodies
 
 // initializing express session
@@ -26,7 +22,7 @@ app.use(session(
 	)
 );
 
-app.set("port", (process.env.PORT || port));
+app.set("port", (process.env.PORT || serverConfig.port));
 
 // with the following we allow the access to static contents
 // that are in the script folder but via another name, in this
@@ -39,20 +35,18 @@ app.use("/scripts", express.static(__dirname + "/script"));
 app.use("/bootstrapCss", express.static(__dirname + "/node_modules/bootstrap/dist/css"));
 app.use("/bootstrapJs", express.static(__dirname + "/node_modules/bootstrap/dist/js"));
 
-var sess;
-
 app.get("/"
 	, function (request, response)
 	  {
-	  	// Getting the user session
-	  	sess = request.session;
+	  	// Getting the session
+	  	var sess = request.session;
 	  	// We have to check the credentials of the user
 	  	if(typeof sess.user !== 'undefined' && sess.user)
 	  	{
 	  		// if the user is logged we produce an html document from
 		  	// a template that is the home page
 		    bindWrapper.bindToTemplate(
-		    	'public/index.tpl'
+		    	'tpl/index.tpl'
 		    	, {user : sess.user}
 		    	, response
 		    );
@@ -74,11 +68,15 @@ app.get("/login"
 	  	// in this case we produce an html document from
 	  	// a template but we leave all the parameters empty
 	  	// because the user is requesting the home page
-	    bindWrapper.bindToTemplate(
-		    	'public/login.tpl'
-		    	, {user : sess.user}
-		    	, response
-		    );
+	    bind.toFile(
+			"tpl/login.tpl"
+			, {action : 'action="' + serverConfig.completeUrl + "/doLogin" + '"'}
+			, function (data)
+			  {				
+				response.writeHead(200, serverConfig.headers);
+				response.end(data);
+			  }
+		);
 	  	
 	  }
 );
@@ -97,6 +95,7 @@ app.post("/doLogin"
 	  	// if a body is prensent in the request and is not empty
 	  	if( typeof request.body !== 'undefined' && request.body)
 	    {
+	  		console.log("ciaone");
 	    	// if username parameter is prensent in the request
 	    	// we process it
 	    	if( typeof request.body.username !== 'undefined')
@@ -126,7 +125,12 @@ app.post("/doLogin"
 				    		var logged = login.login(username, password);
 				    		if(logged)
 				    		{
+				    			// Getting the session
+	  							var sess = request.session;
+	  							console.log(session)
+				    			sess.user = username;
 				    			response.redirect("/");
+				    			response.end();
 				    		}
 				    		else
 				    		{
@@ -148,11 +152,12 @@ app.post("/doLogin"
 
 	    if(redirect)
 	    {
-
+	    	response.redirect("/login");
+			response.end();
 	    }
 	  }
 
 );
 
-app.listen(app.get('port'), address);
-console.log("Server running at http://" + address + ":" + port);
+app.listen(app.get('port'), serverConfig.address);
+console.log("Server running at http://" + serverConfig.address + ":" + serverConfig.port);
