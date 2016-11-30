@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		
+		<base (: base :) target="_blank">
     	<!-- bootstrap css -->
 		<link href="bootstrapCss/bootstrap.min.css" rel="stylesheet">
 
@@ -17,7 +17,7 @@
 			<div class="row">
 				<div class="col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4"></div>
 				<div class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4">
-					<h1>(: user :)</h1>
+					<h2>(: user :)<small>&#09;<a href="/logout">logout</a></small> </h2>
 				</div>
 			</div>
 		</div>

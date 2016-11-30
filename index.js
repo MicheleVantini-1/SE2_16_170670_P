@@ -47,7 +47,10 @@ app.get("/"
 		  	// a template that is the home page
 		    bindWrapper.bindToTemplate(
 		    	'tpl/index.tpl'
-		    	, {user : sess.user}
+		    	, {
+		    		user : sess.user
+		    		, base : serverConfig.completeUrl
+		    	  }
 		    	, response
 		    );
 	  	}
@@ -55,8 +58,6 @@ app.get("/"
 	  	{
 	  		response.redirect("/login");
 	  	}
-	  	
-	  	
 	  }
 );
 
@@ -94,8 +95,7 @@ app.post("/doLogin"
 	  	var password;
 	  	// if a body is prensent in the request and is not empty
 	  	if( typeof request.body !== 'undefined' && request.body)
-	    {
-	  		console.log("ciaone");
+	    {	  		
 	    	// if username parameter is prensent in the request
 	    	// we process it
 	    	if( typeof request.body.username !== 'undefined')
@@ -127,7 +127,6 @@ app.post("/doLogin"
 				    		{
 				    			// Getting the session
 	  							var sess = request.session;
-	  							console.log(session)
 				    			sess.user = username;
 				    			response.redirect("/");
 				    			response.end();
@@ -157,6 +156,23 @@ app.post("/doLogin"
 	    }
 	  }
 
+);
+
+// the following set a callback function that does
+// the login phase 
+app.get("/logout"
+	, function (request, response)
+	  {
+	  	request.session.destroy(
+	  		function(err) 
+	  		{
+				if(!err) 
+				{
+					response.redirect('/login');
+				}
+			}
+		);
+	  }
 );
 
 app.listen(app.get('port'), serverConfig.address);
