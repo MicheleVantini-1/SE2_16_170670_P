@@ -15,8 +15,8 @@
 
 		<div class="container">
 			<div class="row">
-				<div class="col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4 " ></div>
-				<div class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4" >
+				<div class="col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4"></div>
+				<div class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4">
 					<form class="form-signin" mathod="POST" [: action :]>
 						<h5 class="form-signin-heading">Log in</h5>
 						<label for="inputEmail" class="sr-only">Email address</label>
