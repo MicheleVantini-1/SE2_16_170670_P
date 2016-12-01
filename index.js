@@ -29,6 +29,11 @@ app.set("port", (process.env.PORT || serverConfig.port));
 // case 'scripts'
 app.use("/scripts", express.static(__dirname + "/script"));
 
+// with the following we allow the access to static contents
+// that are in the css folder but via another name, in this
+// case 'style'
+app.use("/style", express.static(__dirname + "/css"));
+
 // with the followings we allow the access to static contents
 // that are in the boostrap folder but via another name, in this
 // case 'bootstrapCss' and 'bootstrapJs'
@@ -159,16 +164,26 @@ app.post("/doLogin"
 );
 
 // the following set a callback function that does
-// the login phase 
+// the logout phase 
 app.get("/logout"
 	, function (request, response)
 	  {
+	  	// in order to logout the user we destroy the
+	  	// session and we provide a callback function that
+	  	// if there is no error redirects the user to the 
+	  	// login page, otherwise we redirect the user to an error page
 	  	request.session.destroy(
 	  		function(err) 
 	  		{
 				if(!err) 
 				{
 					response.redirect('/login');
+					response.end();
+				}
+				else
+				{
+					response.redirect('/error');
+					response.end();
 				}
 			}
 		);

@@ -7,19 +7,42 @@
 		<base (: base :) target="_blank">
     	<!-- bootstrap css -->
 		<link href="bootstrapCss/bootstrap.min.css" rel="stylesheet">
-
+		<link href="style/style.css" rel="stylesheet">
 		<title></title>
 
 	</head>
-	<body>
-
-		<div class="container">
+	<body>		
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Bootstrap theme</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="/">Home</a></li>
+						<li><a href="#">La mia dieta</a></li>
+					</ul>
+					<div class ="navbar-right">
+						<h3 class="navbar-center">(: user :)&#09;<a href="/logout">logout</a></small> </h3>
+					</div>
+				</div><!--/.nav-collapse -->
+			</div>
+		</nav>
+    	<div class="container">
 			<div class="row">
 				<div class="col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4"></div>
 				<div class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4">
-					<h2>(: user :)<small>&#09;<a href="/logout">logout</a></small> </h2>
+					<div class="row">
+						
+					</div>
 				</div>
-			</div>
+			</div>	
 		</div>
 
 		<!-- jQuery -->
