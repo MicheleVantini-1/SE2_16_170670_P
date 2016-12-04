@@ -21,25 +21,38 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">Bootstrap theme</a>
+					<h3 class="no-margin navbar-brand">MealsDelivery</h3>
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="/">Home</a></li>
-						<li><a href="#">La mia dieta</a></li>
+						<li class="active">
+							<a href="/">Home</a>
+						</li>
+						<li>
+							<a href="#">La mia dieta</a>
+						</li>
 					</ul>
-					<div class ="navbar-right">
-						<h3 class="navbar-center">(: user :)&#09;<a href="/logout">logout</a></small> </h3>
+					<div class ="nav navbar-nav navbar-right">
+						<h4 class="text-muted">(: user :)&nbsp;&nbsp;&nbsp;&nbsp;<a href="/logout">logout</a></h4>
 					</div>
 				</div><!--/.nav-collapse -->
 			</div>
 		</nav>
     	<div class="container">
 			<div class="row">
-				<div class="col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4"></div>
-				<div class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xs-offset-1 col-sm-offset-2 col-md-offset-3 col-lg-offset-4">
+				
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 					<div class="row">
-						
+						<div class="panel-padding-top col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title">Le mie ordinazioni</h3>
+								</div>
+								<div class="panel-body">
+									Panel content
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>	

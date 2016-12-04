@@ -16,6 +16,27 @@ function login(username, password)
 	return true;
 }
 
+/**
+*	Function that insert all the information passed as parameters
+*	into the database in order to cerate a new user and if everything
+* 	is ok with the query it returns true otherwise false
+*	@param username - the username of the new user
+*	@param password - the password of the new user
+*	@param birthday - the birthday of the new user
+*	@param phoie - the password of the new user
+*	@param email - the email of the new user
+*	@return true if everything is ok with the query execution
+			false otherwise
+*/
+
+function register(username, password, email, birthday, phone)
+{
+	// TO-DO 
+
+	return true;
+}
+
 
 // EXPORTS 
 exports.login = login;
+exports.register = register;

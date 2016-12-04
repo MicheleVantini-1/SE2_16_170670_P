@@ -1,3 +1,4 @@
+// MODULES IMPORTS
 var express = require('express');
 var bodyParser = require('body-parser');
 var bind = require('bind');
@@ -6,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var serverConfig = require('./serverConfig.js');
 var login = require('./login.js');
 var bindWrapper = require('./bindWrapper.js');
+var pg = require("pg");
 
 var app = express();
 
@@ -87,6 +89,27 @@ app.get("/login"
 	  }
 );
 
+// accepting all the get request of the form http://localhost:port/
+// and setting the proper callback function
+app.get("/register"
+	, function (request, response)
+	  {
+	  	// in this case we produce an html document from
+	  	// a template but we leave all the parameters empty
+	  	// because the user is requesting the home page
+	    bind.toFile(
+			"tpl/register.tpl"
+			, {action : 'action="' + serverConfig.completeUrl + "/doRegister" + '"'}
+			, function (data)
+			  {				
+				response.writeHead(200, serverConfig.headers);
+				response.end(data);
+			  }
+		);
+	  	
+	  }
+);
+
 // the following set a callback function that does
 // the login phase 
 app.post("/doLogin"
@@ -157,6 +180,118 @@ app.post("/doLogin"
 	    if(redirect)
 	    {
 	    	response.redirect("/login");
+			response.end();
+	    }
+	  }
+
+);
+
+// the following set a callback function that does
+// the login phase 
+app.post("/doRegister"
+	, function (request, response)
+	  {
+	  	// if sth goes wrong this variable is set to true 
+	  	// so that the user will be redirected to the login page
+	  	var redirect = false;
+
+		var username;
+	  	var password;
+	  	var repassword;
+	  	var email;
+	  	var birthday;
+	  	var phone;
+	  	// if a body is prensent in the request and is not empty
+	  	if( typeof request.body !== 'undefined' && request.body)
+	    {	  		
+	    	// if username parameter is prensent in the request
+	    	// we process it
+	    	if( typeof request.body.username !== 'undefined')
+		    {
+
+		    	if(!request.body.username)
+		    	{
+		    		console.log("no username");
+		    		redirect = true;
+		    	}
+		    	else
+		    	{
+		    		username = request.body.username;
+
+		    		// if password parameter is prensent in the request
+	    			// we process it
+		    		if( typeof request.body.password !== 'undefined')
+				    {
+				    	if(!request.body.password)
+				    	{
+				    		console.log("no password");
+				    		redirect = true;
+				    	}
+				    	else
+				    	{
+				    		password = request.body.password;
+
+				    		if( typeof request.body.re-password !== 'undefined')
+						    {
+						    	if(!request.body.re-password)
+						    	{
+						    		console.log("no re-password");
+						    		redirect = true;
+						    	}
+						    	else
+						    	{
+						    		repassword = request.body.re-password
+						    		if(password === repassword)
+						    		{
+						    			if( typeof request.body.birthday !== 'undefined')
+									    {
+									    	if(!request.body.birthday)
+									    	{
+									    		console.log("no birthday");
+									    		redirect = true;
+									    	}
+									    	else
+									    	{
+									    		birthday = request.body.birthday;
+									    		if( typeof request.body.phone !== 'undefined')
+											    {
+											    	if(request.body.phone)
+											    	{
+											    		phone = request.body.phone;
+											    	}
+											    	else
+											    	{
+											    		console.log("no phone");
+											    		phone = "";
+											    	}
+											    }
+									    	}
+									    }
+						    		}
+						    		else
+						    		{
+						    			console.log("the 2 psw don't match");
+						    			redirect = true;
+						    		}
+						    	}
+						    }
+				    	}
+				    }	
+		    	}
+		    }
+		    else
+		    {		    
+		    	redirect = true;
+		    }
+	    }
+	    else
+	    {
+	    	redirect = true;
+	    }
+
+	    if(redirect)
+	    {
+	    	response.redirect("/register");
 			response.end();
 	    }
 	  }
