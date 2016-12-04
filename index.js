@@ -325,5 +325,7 @@ app.get("/logout"
 	  }
 );
 
-app.listen(app.get('port'), serverConfig.address);
-console.log("Server running at http://" + serverConfig.address + ":" + serverConfig.port);
+
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
