@@ -22,7 +22,7 @@ function login(username, password)
 			   		// definition of the parameterized query
 			   		var queryConfig = {
 			   			text : "SELECT id FROM users WHERE username = $1 AND password = $2"
-			   			values : [username, password]
+			   			, values : [username, password]
 			   		};
 
 			   		// execution of the query
