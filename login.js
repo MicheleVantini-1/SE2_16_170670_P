@@ -72,13 +72,14 @@ function login(username, password)
 function register(username, password, name, surname, birthday, phone)
 {
 	var res = false;
+	console.log('\n\na\n');
 	// in order to query the database we start a connection to it
 	pg.connect(process.env.DATABASE_URL
 			 , function(err, client, done) 
 			   {
 			   		// once the connection will be enstabilished we can 
 			   		// query the database
-
+			   		console.log('\tb\n');
 			   		// definition of the parameterized query
 			   		var queryConfig = {
 			   			text : "INSERT INTO users(username, password, name, surname, bday, phone) VALUES ($1, $2, $3, $4, $5, $6)"
@@ -89,25 +90,30 @@ function register(username, password, name, surname, birthday, phone)
 					client.query( queryConfig
 								, function(err, result) 
 								  {
+								  	console.log('\t\tc\n');
 									// once the query will be executed 
 									done();
 
 									// if there is any error we print it on the console
 									if (err)
 									{ 
-									   console.error(err); 
+									   	console.log('\t\t\tc\n');
+										console.error(err); 
 									}
 									// otherwise we set to true the return value
 									else
 									{ 
+										console.log('\t\t\td\n');
 										res = true;
 									}
 								  }
 					);
+					console.log('\tb\n');
 
   				}
   	);
 
+	console.log('a\n');
 	return res;
 }
 
