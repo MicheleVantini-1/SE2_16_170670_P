@@ -1,3 +1,5 @@
+var pg = require("pg");
+
 /**
 *	Function that check if the given username is associated
 *	to some user in the database and if it is the case the password
