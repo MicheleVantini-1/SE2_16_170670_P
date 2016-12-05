@@ -2,7 +2,7 @@
 var port = 8080;
 // address used as default
 var address = "peaceful-sands-94334.herokuapp.com";
-var completeUrl = "http://" + address + ":" + port;
+var completeUrl = "http://" + address; //+ ":" + port;
 
 // all the headers that will be set in the 
 // http response header 
