@@ -5,7 +5,7 @@ var bind = require('bind');
 var session = require("express-session");
 var cookieParser = require('cookie-parser');
 var serverConfig = require('./serverConfig.js');
-var login = require('./login.js');
+var user = require('./login.js');
 var bindWrapper = require('./bindWrapper.js');
 
 var app = express();
@@ -149,7 +149,7 @@ app.post("/doLogin"
 				    		password = request.body.password;
 				    		// executing the login function to check if the input data
 				    		// represent a valid user
-				    		var logged = login.login(username, password);
+				    		var logged = user.login(username, password);
 				    		if(logged)
 				    		{
 				    			// Getting the session
@@ -240,8 +240,6 @@ app.post("/doRegister"
 						    	else
 						    	{
 						    		repassword = request.body.repassword;
-						    		console.log(password);
-						    		console.log(repassword);
 						    		if(password === repassword)
 						    		{
 						    			if( typeof request.body.birthday !== 'undefined')
@@ -263,8 +261,15 @@ app.post("/doRegister"
 											    	else
 											    	{
 											    		console.log("no phone");
-											    		phone = "";
+											    		phone = null;
 											    	}
+											    }
+
+											    var res = user.register(username, password, repassword, email, birthday, phone);
+											    if(!res)
+											    {
+											    	console.log("sth goes wrong with the query");
+											    	redirect = true;
 											    }
 									    	}
 									    }
@@ -294,6 +299,11 @@ app.post("/doRegister"
 	    {
 	    	response.redirect("/register");
 			response.end();
+	    }
+	    else
+	    {
+	    	response.redirect("/login");
+	    	response.end();
 	    }
 	  }
 
