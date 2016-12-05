@@ -2,18 +2,64 @@
 *	Function that check if the given username is associated
 *	to some user in the database and if it is the case the password
 *	is also checked. Therefore, if both username and password match
-*	with the data in the database we return true
+*	with the data in the database we return the user id
 *	@param username - the username of the user
 *	@param password - the password of the user
-*	@return true if the user exists and the password is ok
-			false otherwise
+*	@return the id of the user if the user exists and the password is ok
+			-1 otherwise
 */
 
 function login(username, password)
 {
-	// TO-DO 
+	var res = -1;
+	// in order to query the database we start a connection to it
+	pg.connect(process.env.DATABASE_URL
+			 , function(err, client, done) 
+			   {
+			   		// once the connection will be enstabilished we can 
+			   		// query the database
 
-	return true;
+			   		// definition of the parameterized query
+			   		var queryConfig = {
+			   			text : "SELECT id FROM users WHERE username = $1 AND password = $2"
+			   			values : [username, password]
+			   		};
+
+			   		// execution of the query
+					client.query( queryConfig
+								, function(err, result) 
+								  {
+									// once the query will be executed 
+									done();
+
+									if (err)
+									{ 
+									   console.error(err); 
+									}
+									else
+									{ 
+										if(result.rowCount != 0)
+										{
+											res = result.rows[0].id;
+										}
+									}
+								  }
+					);
+
+  				}
+  	);
+
+	var returnValue;
+  	if(res != -1)
+  	{
+  		returnValue = true;
+  	}
+  	else
+  	{
+  		returnValue = false;
+  	}
+
+	return returnValue;
 }
 
 /**
