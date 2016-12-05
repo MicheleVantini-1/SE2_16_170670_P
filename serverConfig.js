@@ -1,8 +1,21 @@
 // port number used as default 
 var port = 8080;
 // address used as default
-var address = "peaceful-sands-94334.herokuapp.com";
-var completeUrl = "http://" + address; //+ ":" + port;
+var address;
+var completeUrl;
+
+var local = false;
+
+if(local)
+{
+	var address = "localhost";
+	var completeUrl = "http://" + address + ":" + port;
+}
+else
+{
+	address = "peaceful-sands-94334.herokuapp.com";
+	completeUrl = "http://" + address;
+}
 
 // all the headers that will be set in the 
 // http response header 

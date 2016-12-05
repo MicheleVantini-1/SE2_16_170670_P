@@ -26,8 +26,8 @@
 						<label for="password" class="sr-only">Password</label>
 						<input type="password" id="password" name="password" class="form-control control-padding" placeholder="password" required>
 						<!-- repeat password -->
-						<label for="re-password" class="sr-only">Password</label>
-						<input type="password" id="re-password" name="re-password" class="form-control control-padding" placeholder="password" required>
+						<label for="repassword" class="sr-only">Password</label>
+						<input type="password" id="repassword" name="repassword" class="form-control control-padding" placeholder="password" required>
 						<!-- email -->
 						<label for="email" class="sr-only">Email</label>
 						<input type="email" id="email" name="email" class="form-control control-padding" placeholder="email" required>

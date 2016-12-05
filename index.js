@@ -7,7 +7,6 @@ var cookieParser = require('cookie-parser');
 var serverConfig = require('./serverConfig.js');
 var login = require('./login.js');
 var bindWrapper = require('./bindWrapper.js');
-var pg = require("pg");
 
 var app = express();
 
@@ -231,16 +230,18 @@ app.post("/doRegister"
 				    	{
 				    		password = request.body.password;
 
-				    		if( typeof request.body.re-password !== 'undefined')
+				    		if( typeof request.body.repassword !== 'undefined')
 						    {
-						    	if(!request.body.re-password)
+						    	if(!request.body.repassword)
 						    	{
-						    		console.log("no re-password");
+						    		console.log("no repassword");
 						    		redirect = true;
 						    	}
 						    	else
 						    	{
-						    		repassword = request.body.re-password
+						    		repassword = request.body.repassword;
+						    		console.log(password);
+						    		console.log(repassword);
 						    		if(password === repassword)
 						    		{
 						    			if( typeof request.body.birthday !== 'undefined')
