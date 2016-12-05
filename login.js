@@ -1,5 +1,6 @@
 var pg = require("pg");
 
+
 /**
 *	Function that check if the given username is associated
 *	to some user in the database and if it is the case the password
@@ -34,6 +35,7 @@ function login(username, password)
 									// once the query will be executed 
 									done();
 
+									// if there is any error we print it on the console
 									if (err)
 									{ 
 									   console.error(err); 
@@ -51,17 +53,7 @@ function login(username, password)
   				}
   	);
 
-	var returnValue;
-  	if(res != -1)
-  	{
-  		returnValue = true;
-  	}
-  	else
-  	{
-  		returnValue = false;
-  	}
-
-	return returnValue;
+	return res;
 }
 
 /**
@@ -77,11 +69,46 @@ function login(username, password)
 			false otherwise
 */
 
-function register(username, password, email, birthday, phone)
+function register(username, password, name, surname, birthday, phone)
 {
-	// TO-DO 
+	var res = false;
+	// in order to query the database we start a connection to it
+	pg.connect(process.env.DATABASE_URL
+			 , function(err, client, done) 
+			   {
+			   		// once the connection will be enstabilished we can 
+			   		// query the database
 
-	return true;
+			   		// definition of the parameterized query
+			   		var queryConfig = {
+			   			text : "INSERT INTO users(username, password, name, surname, bday, phone) VALUES ($1, $2, $3, $4, $5, $6)"
+			   			, values : [username, password, name, surname, birthday, phone]
+			   		};
+
+			   		// execution of the query
+					client.query( queryConfig
+								, function(err, result) 
+								  {
+									// once the query will be executed 
+									done();
+
+									// if there is any error we print it on the console
+									if (err)
+									{ 
+									   console.error(err); 
+									}
+									// otherwise we set to true the return value
+									else
+									{ 
+										res = true;
+									}
+								  }
+					);
+
+  				}
+  	);
+
+	return res;
 }
 
 
