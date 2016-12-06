@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		
-    	<!-- bootstrap css -->
-		<link href="bootstrapCss/bootstrap.min.css" rel="stylesheet">
-		<link href="style/style.css" rel="stylesheet">
-		<title></title>
-
+		(: header :)
 	</head>
 	<body>
 
@@ -28,12 +20,9 @@
 						<!-- repeat password -->
 						<label for="repassword" class="sr-only">Password</label>
 						<input type="password" id="repassword" name="repassword" class="form-control control-padding" placeholder="password" required>
-						<!-- email -->
-						<label for="email" class="sr-only">Email</label>
-						<input type="email" id="email" name="email" class="form-control control-padding" placeholder="email" required>
 						<!-- birthday -->
 						<label for="birthday" class="sr-only">Password</label>
-						<input type="date" id="date" name="date" class="form-control control-padding" placeholder="dd/mm/yyyy" required>
+						<input type="date" id="birthday" name="birthday" class="form-control control-padding" placeholder="dd/mm/yyyy" required>
 						<!-- phone number -->
 						<label for="phone" class="sr-only">Password</label>
 						<input type="tel" id="phone" name="phone" class="form-control control-padding" placeholder="333 445566" required>
@@ -43,9 +32,6 @@
 			</div>
 		</div>
 
-		<!-- jQuery -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<!-- bootstrap -->
-		<script src="bootstrapJs/bootstrap.min.js"></script>
+		(: js :)
 	</body>
 </html>

@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<base (: base :) target="_blank">
-    	<!-- bootstrap css -->
-		<link href="bootstrapCss/bootstrap.min.css" rel="stylesheet">
-		<link href="style/style.css" rel="stylesheet">
-		<title></title>
-
+		(: header :)
 	</head>
 	<body>		
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -46,7 +38,14 @@
 						<div class="panel-padding-top col-xs-12 col-sm-12 col-md-12 col-lg-12">
 							<div class="panel panel-default">
 								<div class="panel-heading">
-									<h3 class="panel-title">Le mie ordinazioni</h3>
+									<div class="row">
+										<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 panel-title-margin">
+											<h2 class="panel-title">Le mie ordinazioni</h2>
+										</div>
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<a class="btn btn-success pull-right " href="/newOrder">Nuovo ordine</a>
+										</div>										
+									</div>
 								</div>
 								<div class="panel-body">
 									Panel content
@@ -58,9 +57,6 @@
 			</div>	
 		</div>
 
-		<!-- jQuery -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<!-- bootstrap -->
-		<script src="bootstrapJs/bootstrap.min.js"></script>
+		(: js :)
 	</body>
 </html>

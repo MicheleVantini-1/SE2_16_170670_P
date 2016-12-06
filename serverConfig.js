@@ -4,7 +4,7 @@ var port = 8080;
 var address;
 var completeUrl;
 
-var local = false;
+var local = true;
 
 if(local)
 {

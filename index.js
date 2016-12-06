@@ -7,6 +7,8 @@ var cookieParser = require('cookie-parser');
 var serverConfig = require('./serverConfig.js');
 var user = require('./login.js');
 var bindWrapper = require('./bindWrapper.js');
+var model = require('./model.js');
+var html = require('./html.js');
 
 var app = express();
 
@@ -54,7 +56,9 @@ app.get("/"
 		    bindWrapper.bindToTemplate(
 		    	'tpl/index.tpl'
 		    	, {
-		    		user : sess.user
+		    		header : html.header
+		    		, js : html.js
+		    		, user : sess.user
 		    		, base : serverConfig.completeUrl
 		    	  }
 		    	, response
@@ -77,7 +81,11 @@ app.get("/login"
 	  	// because the user is requesting the home page
 	    bind.toFile(
 			"tpl/login.tpl"
-			, {action : 'action="' + serverConfig.completeUrl + "/doLogin" + '"'}
+			, {
+				header : html.header
+				, js : html.js
+				, action : 'action="' + serverConfig.completeUrl + "/doLogin" + '"'
+			  }
 			, function (data)
 			  {				
 				response.writeHead(200, serverConfig.headers);
@@ -98,7 +106,11 @@ app.get("/register"
 	  	// because the user is requesting the home page
 	    bind.toFile(
 			"tpl/register.tpl"
-			, {action : 'action="' + serverConfig.completeUrl + "/doRegister" + '"'}
+			, {
+				header : html.header
+				, js : html.js
+				, action : 'action="' + serverConfig.completeUrl + "/doRegister" + '"'
+			  }
 			, function (data)
 			  {				
 				response.writeHead(200, serverConfig.headers);
@@ -200,14 +212,13 @@ app.post("/doRegister"
 	  	var email;
 	  	var birthday;
 	  	var phone;
-	  	// if a body is prensent in the request and is not empty
+	  	// if a body is prensent in the request and is not empty	  	
 	  	if( typeof request.body !== 'undefined' && request.body)
 	    {	  		
 	    	// if username parameter is prensent in the request
 	    	// we process it
 	    	if( typeof request.body.username !== 'undefined')
 		    {
-
 		    	if(!request.body.username)
 		    	{
 		    		console.log("no username");
@@ -264,11 +275,12 @@ app.post("/doRegister"
 											    		phone = null;
 											    	}
 											    }
+											    console.log("G");
 
-											    var res = user.register(username, password, repassword, email, birthday, phone);
+											    var res = user.register(username, password, birthday, phone);
 											    if(!res)
 											    {
-											    	console.log("sth goes wrong with the query");
+											    	console.log("the user already exists");
 											    	redirect = true;
 											    }
 									    	}
@@ -338,5 +350,5 @@ app.get("/logout"
 
 
 app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
+  console.log('Node app is running');
 });
