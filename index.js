@@ -8,11 +8,14 @@ var serverConfig = require('./serverConfig.js');
 var user = require('./login.js');
 var bindWrapper = require('./bindWrapper.js');
 var model = require('./model.js');
+var testingModel = require('./testingModel.js');
 var html = require('./html.js');
+var utility = require('./utility.js');
 
 var app = express();
 
 app.use(cookieParser());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));    // to support URL-encoded bodies
 
 // initializing express session
@@ -24,6 +27,12 @@ app.use(session(
 		}
 	)
 );
+
+/*
+	THIS IS ONLY FOR TESTING PURPOSE
+*/
+testingModel.populateModel();
+
 
 app.set("port", (process.env.PORT || serverConfig.port));
 
@@ -53,16 +62,24 @@ app.get("/"
 	  	{
 	  		// if the user is logged we produce an html document from
 		  	// a template that is the home page
-		    bindWrapper.bindToTemplate(
-		    	'tpl/index.tpl'
-		    	, {
+		  	bind.toFile(
+				'tpl/index.tpl'
+				, {
 		    		header : html.header
 		    		, js : html.js
 		    		, user : sess.user
+		    		, navbar : html.navbar
 		    		, base : serverConfig.completeUrl
 		    	  }
-		    	, response
-		    );
+				, function (data)
+				  {				
+					var headers = serverConfig.headers;
+				  	headers["Content-Type"] = "text/html";
+					response.writeHead(200, headers);
+					response.end(data);
+				  }
+			);
+		  	
 	  	}
 	  	else
 	  	{
@@ -88,7 +105,9 @@ app.get("/login"
 			  }
 			, function (data)
 			  {				
-				response.writeHead(200, serverConfig.headers);
+				var headers = serverConfig.headers;
+			  	headers["Content-Type"] = "text/html";
+				response.writeHead(200, headers);
 				response.end(data);
 			  }
 		);
@@ -113,7 +132,9 @@ app.get("/register"
 			  }
 			, function (data)
 			  {				
-				response.writeHead(200, serverConfig.headers);
+			  	var headers = serverConfig.headers;
+			  	headers["Content-Type"] = "text/html";
+				response.writeHead(200, headers);
 				response.end(data);
 			  }
 		);
@@ -345,6 +366,43 @@ app.get("/logout"
 				}
 			}
 		);
+	  }
+);
+
+
+app.post("/getDishes"
+	, function (request, response)
+	  {
+	  	var headers = serverConfig.headers;
+	  	headers["Content-Type"] = "application/json";
+	  	var obj;	  	
+	  	if(utility.isNotUndefined(request.body.date) && request.body.date)
+	  	{
+	  		var date = new Date(request.body.date);
+	  		date.setHours(0,0,0,0);
+	  		var now = new Date(Date.now());
+	  		now.setHours(0,0,0,0);
+
+	  		if(date >= now)
+	  		{
+	  			obj = model.availability[request.body.date];
+	  		}
+	  		else
+	  		{
+	  			obj = {error : "The date must be after today"}
+	  		}
+	  	}
+	  	else
+	  	{
+	  		obj = {error : "empty or no date parameter"}
+	  	}	  
+	  	var json = JSON.stringify(
+		  	obj
+		);
+	  	response.end(json);	
+
+
+	  	
 	  }
 );
 

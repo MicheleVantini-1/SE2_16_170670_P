@@ -21,3 +21,7 @@ body {
 .panel-title-margin{
 	margin-top:8px;
 }
+
+.default-hide{
+	display: none;
+}
