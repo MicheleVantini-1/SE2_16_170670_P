@@ -18,7 +18,7 @@
 											<h2 class="panel-title">Le mie ordinazioni</h2>
 										</div>
 										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-											<button class="btn btn-success pull-right " onclick="newOrderShowHide();">Nuovo ordine</a>
+											<button class="btn btn-success pull-right" id="showHideNewOrderBtn" onclick="newOrderShowHide();">Nuovo ordine</a>
 										</div>										
 									</div>
 									<div class="row default-hide" id="newOrderContainer">
@@ -33,13 +33,35 @@
 												</div>
 											</div>
 											
-											<div class="row" id="dishesContainer">
+											<div class="row default-hide" id="dishesContainer">
+											</div>
+
+											<div class="row default-hide" id="confirmBtnContainer">
+												<div class="col-xs-12 col-sm-12 col-md-6 col-lg-8" id="addOrderErrorContainer">
+													
+												</div>
+												<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+													<button class="btn btn-success pull-right" onclick="confirmOrder()">Conferma</button>
+												</div>
 											</div>
 										</div>
 									</div>
 								</div>
 								<div class="panel-body">
-									Panel content
+									<table class="table table-hover" id="ordersTable">
+										<thead>
+											<tr>
+												<th>Data</th>
+												<th>Primo</th>
+												<th>Secondo</th>
+												<th>Contorno</th>
+												<th>Dessert</th>
+											</tr>
+										</thead>
+										<tbody>
+											
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>

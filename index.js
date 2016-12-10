@@ -58,7 +58,7 @@ app.get("/"
 	  	// Getting the session
 	  	var sess = request.session;
 	  	// We have to check the credentials of the user
-	  	if(typeof sess.user !== 'undefined' && sess.user)
+	  	if(user.isUserLogged(request))
 	  	{
 	  		// if the user is logged we produce an html document from
 		  	// a template that is the home page
@@ -79,7 +79,7 @@ app.get("/"
 					response.end(data);
 				  }
 			);
-		  	
+
 	  	}
 	  	else
 	  	{
@@ -369,40 +369,177 @@ app.get("/logout"
 	  }
 );
 
-
+/*
+*	The following sets the callback function that
+*	answer to POST request of the form http://wesite.com/getDishes
+*	with a JSON object that contains all the dishes for a
+*	specified date (that must be part of the POST request)
+*/
 app.post("/getDishes"
 	, function (request, response)
 	  {
-	  	var headers = serverConfig.headers;
-	  	headers["Content-Type"] = "application/json";
-	  	var obj;	  	
-	  	if(utility.isNotUndefined(request.body.date) && request.body.date)
+	  	if(user.isUserLogged(request))
 	  	{
-	  		var date = new Date(request.body.date);
-	  		date.setHours(0,0,0,0);
-	  		var now = new Date(Date.now());
-	  		now.setHours(0,0,0,0);
+		  	var headers = serverConfig.headers;
+		  	headers["Content-Type"] = "application/json";
+		  	var obj;	  	
+		  	
+		  	// checking that the date field is present and not empty
+		  	// in the body of the request
+	  		if(utility.isNotUndefined(request.body.date) && request.body.date)
+		  	{
+		  		if(utility.checkDate(request.body.date))
+		  		{
+		  			var date = new Date(request.body.date);
+			  		date.setHours(0,0,0,0);
+			  		var now = new Date(Date.now());
+			  		now.setHours(0,0,0,0);
 
-	  		if(date >= now)
-	  		{
-	  			obj = model.availability[request.body.date];
-	  		}
-	  		else
-	  		{
-	  			obj = {error : "The date must be after today"}
-	  		}
+			  		// checking that the date is after today
+			  		if(date >= now)
+			  		{
+			  			// if it is the case we return 
+			  			// the information about the dishes			  			
+			  			obj = model.availability[request.body.date];
+			  		}
+			  		else
+			  		{
+			  			// otherwise we return an error message
+			  			obj = {error : "The date must be after today"}
+			  		}	
+		  		}
+		  		else
+		  		{
+		  			obj = {error : "The parameter passed as date is not a valid date"}
+		  		}
+		  		
+		  	}
+		  	else
+		  	{
+		  		// if there is no date in the body of the request or it is empty
+		  		// we return an error message
+		  		obj = {error : "empty or no date parameter"}
+		  	}
+	  		
+	  		// conversion of the Javascript object to a JSON object
+		  	var json = JSON.stringify(
+			  	obj
+			);
+
+		  	response.end(json);	
+		  		  		
 	  	}
 	  	else
 	  	{
-	  		obj = {error : "empty or no date parameter"}
-	  	}	  
-	  	var json = JSON.stringify(
-		  	obj
-		);
-	  	response.end(json);	
+	  		response.redirect("/login");
+	  	}  
+	  }
+);
 
 
-	  	
+/*
+*	The following sets the callback function that
+*	answer to POST request of the form http://wesite.com/addOrder
+*	with a JSON object that contains the confimation of the order
+*/
+app.post("/addOrder"
+	, function (request, response)
+	  {
+	  	if(user.isUserLogged(request))
+	  	{
+	  		console.log("a");
+		  	var headers = serverConfig.headers;
+		  	headers["Content-Type"] = "application/json";
+		  	var obj;	  	
+		  	
+		  	// checking that there all the parameter are specified and
+		  	// not empty
+		  	console.log(request.body.main);
+		  	console.log(request.body.second);
+		  	console.log(request.body.side);
+		  	console.log(request.body.dessert);
+		  	console.log(request.body.date);
+	  		if(utility.isNotUndefined(request.body.main) && request.body.main
+	  			&& utility.isNotUndefined(request.body.second) && request.body.second
+	  			&& utility.isNotUndefined(request.body.side) && request.body.side
+	  			&& utility.isNotUndefined(request.body.dessert) && request.body.dessert
+	  			&& utility.isNotUndefined(request.body.date) && request.body.date)
+		  	{
+		  		console.log("b");
+		  		// if it is the case we check the validity of the input
+		  		// i.e. at least one among main,second,side and dessert 
+		  		// must be a valid id
+		  		var mainId = parseInt(request.body.main);
+		  		var secondId = parseInt(request.body.second);
+		  		var sideId = parseInt(request.body.side);
+		  		var dessertId = parseInt(request.body.dessert);
+		  		var date;
+
+		  		if(utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
+		  		{
+		  			console.log("d");
+		  			date = new Date(request.body.date);
+		  			// Adding the order to the user list of orders
+		  			var sess = request.session;
+		  			if(utility.isNotUndefined(model.orders[sess.user]))
+		  			{
+		  				console.log("d");
+		  				// otherwise we simply push the order to the list
+		  				model.orders[sess.user].push(
+		  					{
+		  						date : date
+		  						, main : mainId
+		  						, second : secondId
+		  						, side : sideId
+		  						, dessertId : dessertId
+		  					}
+		  				);
+		  			}
+		  			else
+		  			{		  				
+		  				console.log("f");
+		  				// If the list is is empty we create it
+		  				model.orders[sess.user] = [
+		  					{
+		  						date : date
+		  						, main : mainId
+		  						, second : secondId
+		  						, side : sideId
+		  						, dessertId : dessertId
+		  					}
+		  				];
+		  			}
+		  			console.log("g");
+		  			obj = {};
+		  			obj['date'] = date.getFullYear() 
+		  						+ "-" + (date.getMonth() +1) 
+		  						+ "-" + date.getDate() ;
+		  			obj['main'] = (mainId != -1)? model.dishes['main'][mainId].name : "";
+		  			obj['second'] = (secondId != -1)? model.dishes['second'][secondId].name : "";
+		  			obj['side'] = (sideId != -1)? model.dishes['side'][sideId].name : "";
+		  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
+		  		}
+		  	}
+		  	else
+		  	{
+		  		console.log("h");
+		  		// if some parameters are missing or some of them are empty
+		  		// we return an error message
+		  		obj = {error : "some parameters are empty or not present at all"}
+		  	}
+		  	console.log("i");  
+		  	// conversion of the Javascript object to a JSON object
+		  	var json = JSON.stringify(
+			  	obj
+			);
+
+		  	response.end(json);	  
+	  	}
+	  	else
+	  	{
+	  		console.log("l");
+	  		response.redirect("/login");
+	  	} 
 	  }
 );
 

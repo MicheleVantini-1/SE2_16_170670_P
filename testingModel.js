@@ -1,5 +1,12 @@
 var model = require('./model.js');
 
+// TESTING MODULE
+
+/*
+* Function that randomly fill the data
+* structures that compose the model
+* for the web application testing
+*/
 function populateModel () 
 {
 	/* testing user */
@@ -9,9 +16,9 @@ function populateModel ()
 	var count = 20;
 	for(var i = 0; i < count; i++)
 	{
-		dishes['main'].push(
-			{
-				name : "main" + i
+		dishes['main'][i] = {
+				key : i
+				, name : "main" + i
 				, description : "descrizione" + i
 				, calorie : parseInt(Math.random()*1000)
 				, protein : parseInt(Math.random()*100)
@@ -19,12 +26,11 @@ function populateModel ()
 				, fiber : parseInt(Math.random()*100)
 				, fat : parseInt(Math.random()*100)
 				, ingredients : []
-			}
-		);	
+		};	
 
-		dishes['second'].push(
-			{
-				name : "second" + i
+		dishes['second'][i] = {		
+				key : i
+				, name : "second" + i
 				, description : "descrizione" + i
 				, calorie : parseInt(Math.random()*1000)
 				, protein : parseInt(Math.random()*100)
@@ -32,12 +38,11 @@ function populateModel ()
 				, fiber : parseInt(Math.random()*100)
 				, fat : parseInt(Math.random()*100)
 				, ingredients : []
-			}
-		);	
+		};	
 
-		dishes['side'].push(
-			{
-				name : "side" + i
+		dishes['side'][i] = {
+				key : i
+				, name : "side" + i
 				, description : "descrizione" + i
 				, calorie : parseInt(Math.random()*1000)
 				, protein : parseInt(Math.random()*100)
@@ -45,12 +50,11 @@ function populateModel ()
 				, fiber : parseInt(Math.random()*100)
 				, fat : parseInt(Math.random()*100)
 				, ingredients : []
-			}	
-		);	
+		};	
 		
-		dishes['dessert'].push(
-			{
-				name : "dessert" + i
+		dishes['dessert'][i] = {
+				key : i
+				, name : "dessert" + i
 				, description : "descrizione" + i
 				, calorie : parseInt(Math.random()*1000)
 				, protein : parseInt(Math.random()*100)
@@ -58,8 +62,7 @@ function populateModel ()
 				, fiber : parseInt(Math.random()*100)
 				, fat : parseInt(Math.random()*100)
 				, ingredients : []
-			}
-		);
+		};
 	}
 
 	/* testing ingredients */

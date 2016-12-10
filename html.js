@@ -7,7 +7,7 @@ header = '<meta charset="utf-8"> \
 		  <link href="style/style.css" rel="stylesheet"><title></title>';
 
 js = '<!-- jQuery --> \
-	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"> \
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"> \
 	  </script> \
 	  <!-- bootstrap --><script src="bootstrapJs/bootstrap.min.js"></script>';
 

@@ -56,7 +56,28 @@ function register(username, password, birthday, phone)
 	return res;	
 }
 
+/*
+*	This function checks whether or not
+*	the user is authenticated and return
+*	true or false accordingly
+*	@return true if the user is logged
+			false otherwise
+*/
+function isUserLogged(request)
+{
+	var res = false;
+	// Getting the session
+  	var sess = request.session;
+  	// We have to check the credentials of the user
+  	if(typeof sess.user !== 'undefined' && sess.user)
+  	{
+  		res = true;
+  	}
+
+  	return res;
+}
 
 // EXPORTS 
 exports.login = login;
 exports.register = register;
+exports.isUserLogged = isUserLogged;
