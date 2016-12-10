@@ -60,7 +60,7 @@ function selectDate ()
                 if(typeof obj.error !== 'undefined')
                 {
                     // if it is the case we return the error received
-                    html = errorPanel(obj.error);
+                    html = errorPanel("Errore: "+ obj.error);
                 }
                 else
                 {
@@ -154,72 +154,80 @@ function confirmOrder ()
     // send the request to the server
     if(isNotUndefined(mainKey) || isNotUndefined(secondKey) || isNotUndefined(sideKey) || isNotUndefined(dessertKey))
     {
-        // A new AXAJ request is created
-        var xhttp = new XMLHttpRequest();
-        // Setting the destination and the method for the request
-        xhttp.open("POST", "/addOrder", true);
-
-        // Now we set the callback function that will be triggered
-        // due to the server answer receipt
-        xhttp.onreadystatechange = function() 
+        // and if at least one of them is different from -1
+        // i.e. the user has specified at least one among main,second,side and dessert
+        if(mainKey != -1 || secondKey != -1 || sideKey != -1 || dessertKey != -1)
         {
-            if (this.readyState == 4 && this.status == 200) 
+            // A new AXAJ request is created
+            var xhttp = new XMLHttpRequest();
+            // Setting the destination and the method for the request
+            xhttp.open("POST", "/addOrder", true);
+
+            // Now we set the callback function that will be triggered
+            // due to the server answer receipt
+            xhttp.onreadystatechange = function() 
             {
-                // if the object received is empty
-                // it means that something goes wrong in the server-side
-                if(this.responseText === "")
+                if (this.readyState == 4 && this.status == 200) 
                 {
-                    // so we return this error to the user
-                    document.getElementById("addOrderErrorContainer").innerHTML = errorPanel('Errore: qualcosa è andato storto nella tua richiesta, riprova.');
-                } 
-                else 
-                {
-                    var obj = JSON.parse(this.responseText);
-
-                    // if the object received contains an error attribute
+                    // if the object received is empty
                     // it means that something goes wrong in the server-side
-                    if(isNotUndefined(obj.error))
+                    if(this.responseText === "")
                     {
-                        // if it is the case w ereturn an error
-                        document.getElementById("addOrderErrorContainer").innerHTML = errorPanel(obj.error);
-                    }
-                    else
+                        // so we return this error to the user
+                        document.getElementById("addOrderErrorContainer").innerHTML = errorPanel('Errore: qualcosa è andato storto nella tua richiesta, riprova.');
+                    } 
+                    else 
                     {
-                        newOrderShowHide();
+                        var obj = JSON.parse(this.responseText);
 
-                        // if everything is ok with the new order added we add
-                        // it to the list of orders
-                        var table = document.getElementById('ordersTable');
-                        var row = table.insertRow();
+                        // if the object received contains an error attribute
+                        // it means that something goes wrong in the server-side
+                        if(isNotUndefined(obj.error))
+                        {
+                            // if it is the case w ereturn an error
+                            document.getElementById("addOrderErrorContainer").innerHTML = errorPanel("Errore: " + obj.error);
+                        }
+                        else
+                        {
+                            newOrderShowHide();
 
-                        var dateCell = row.insertCell(0);
-                        var mainCell = row.insertCell(1);
-                        var secondCell = row.insertCell(2);
-                        var sideCell = row.insertCell(3);
-                        var dessertCell = row.insertCell(4);
-                        dateCell.innerHTML = obj.date;
-                        mainCell.innerHTML = obj.main;
-                        secondCell.innerHTML = obj.second;
-                        sideCell.innerHTML = obj.side;
-                        dessertCell.innerHTML = obj.dessert;                        
+                            // if everything is ok with the new order added we add
+                            // it to the list of orders
+                            var row = '<tr>';
+                            row += '<td>' + obj.date + '</td>';
+                            row += '<td>' + obj.main + '</td>';
+                            row += '<td>' + obj.second + '</td>';
+                            row += '<td>' + obj.side + '</td>';
+                            row += '<td>' + obj.dessert + '</td>';
+                            row += '</tr>';
+
+                            document.getElementById('date').value = "dd/mm/yyyy";
+                            document.getElementById('ordersTableBody').innerHTML += row;
+                            $('#confirmBtnContainer').hide();
+                        }
                     }
                 }
-            }
-        };
-        // sending the request to the server specifing that it contains
-        // form inputs data
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        var data = "main=" + getRadioValue('main')
-           + "&" + "second=" + getRadioValue('second')
-           + "&" + "side=" + getRadioValue('side')
-           + "&" + "dessert=" + getRadioValue('dessert')
-           + "&" + "date=" + document.getElementById('date').value;
-        xhttp.send(data);
+            };
+            // sending the request to the server specifing that it contains
+            // form inputs data
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            var data = "main=" + getRadioValue('main')
+               + "&" + "second=" + getRadioValue('second')
+               + "&" + "side=" + getRadioValue('side')
+               + "&" + "dessert=" + getRadioValue('dessert')
+               + "&" + "date=" + document.getElementById('date').value;
+            xhttp.send(data);            
+        }
+        else
+        {
+            // otherwise we return an error message to the user
+            document.getElementById("addOrderErrorContainer").innerHTML = errorPanel('Errore: Almeno uno piatto tra primi, secondi, contorni e dessert deve essere selezionato per poter fare un ordine') ;
+        }
     }
     else
     {
         // otherwise we return an error message to the user
-        document.getElementById("addOrderErrorContainer").innerHTML = errorPanel('Almeno uno piatto tra primi, secondi, contorni e dessert deve essere selezionato per poter fare un ordine') ;
+        document.getElementById("addOrderErrorContainer").innerHTML = errorPanel('Errore: Almeno uno piatto tra primi, secondi, contorni e dessert deve essere selezionato per poter fare un ordine') ;
     }
 }
 
@@ -234,13 +242,20 @@ function getRadioValue (radioName) {
     var radios = document.getElementsByName(radioName);
     var length = radios.length;
     var res = null;
+    var found = false;
     for (var i = 0; i < length; i++) {
         if (radios[i].checked) {
             res = radios[i].value;
             // only one radio can be checked
             // so we finish looking for it
+            found = true;
             break;
         }
+    }
+
+    if(!found)
+    {
+        res = -1;
     }
 
     return res;

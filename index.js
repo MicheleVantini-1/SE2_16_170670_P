@@ -62,12 +62,14 @@ app.get("/"
 	  	{
 	  		// if the user is logged we produce an html document from
 		  	// a template that is the home page
+		  	var orders = model.generateRowsFromOrders(sess.user);
 		  	bind.toFile(
 				'tpl/index.tpl'
 				, {
 		    		header : html.header
 		    		, js : html.js
 		    		, user : sess.user
+		    		, orders : orders
 		    		, navbar : html.navbar
 		    		, base : serverConfig.completeUrl
 		    	  }
@@ -296,7 +298,6 @@ app.post("/doRegister"
 											    		phone = null;
 											    	}
 											    }
-											    console.log("G");
 
 											    var res = user.register(username, password, birthday, phone);
 											    if(!res)
@@ -405,12 +406,12 @@ app.post("/getDishes"
 			  		else
 			  		{
 			  			// otherwise we return an error message
-			  			obj = {error : "The date must be after today"}
+			  			obj = {error : "La data deve essere successiva a quella attuale"}
 			  		}	
 		  		}
 		  		else
 		  		{
-		  			obj = {error : "The parameter passed as date is not a valid date"}
+		  			obj = {error : "La data passata è in un formato non valido"}
 		  		}
 		  		
 		  	}
@@ -418,7 +419,7 @@ app.post("/getDishes"
 		  	{
 		  		// if there is no date in the body of the request or it is empty
 		  		// we return an error message
-		  		obj = {error : "empty or no date parameter"}
+		  		obj = {error : "Deve essere fornita una data per poter accedere al menu"}
 		  	}
 	  		
 	  		// conversion of the Javascript object to a JSON object
@@ -447,25 +448,18 @@ app.post("/addOrder"
 	  {
 	  	if(user.isUserLogged(request))
 	  	{
-	  		console.log("a");
 		  	var headers = serverConfig.headers;
 		  	headers["Content-Type"] = "application/json";
 		  	var obj;	  	
 		  	
 		  	// checking that there all the parameter are specified and
 		  	// not empty
-		  	console.log(request.body.main);
-		  	console.log(request.body.second);
-		  	console.log(request.body.side);
-		  	console.log(request.body.dessert);
-		  	console.log(request.body.date);
 	  		if(utility.isNotUndefined(request.body.main) && request.body.main
 	  			&& utility.isNotUndefined(request.body.second) && request.body.second
 	  			&& utility.isNotUndefined(request.body.side) && request.body.side
 	  			&& utility.isNotUndefined(request.body.dessert) && request.body.dessert
 	  			&& utility.isNotUndefined(request.body.date) && request.body.date)
-		  	{
-		  		console.log("b");
+		  	{		  		
 		  		// if it is the case we check the validity of the input
 		  		// i.e. at least one among main,second,side and dessert 
 		  		// must be a valid id
@@ -477,13 +471,11 @@ app.post("/addOrder"
 
 		  		if(utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
 		  		{
-		  			console.log("d");
 		  			date = new Date(request.body.date);
 		  			// Adding the order to the user list of orders
 		  			var sess = request.session;
 		  			if(utility.isNotUndefined(model.orders[sess.user]))
 		  			{
-		  				console.log("d");
 		  				// otherwise we simply push the order to the list
 		  				model.orders[sess.user].push(
 		  					{
@@ -491,13 +483,12 @@ app.post("/addOrder"
 		  						, main : mainId
 		  						, second : secondId
 		  						, side : sideId
-		  						, dessertId : dessertId
+		  						, dessert : dessertId
 		  					}
 		  				);
 		  			}
 		  			else
 		  			{		  				
-		  				console.log("f");
 		  				// If the list is is empty we create it
 		  				model.orders[sess.user] = [
 		  					{
@@ -505,11 +496,13 @@ app.post("/addOrder"
 		  						, main : mainId
 		  						, second : secondId
 		  						, side : sideId
-		  						, dessertId : dessertId
+		  						, dessert : dessertId
 		  					}
 		  				];
 		  			}
-		  			console.log("g");
+
+		  			// Building the object with all the name of the ordered dishes
+		  			// that will be added to the html table that shows the list by the client
 		  			obj = {};
 		  			obj['date'] = date.getFullYear() 
 		  						+ "-" + (date.getMonth() +1) 
@@ -519,15 +512,17 @@ app.post("/addOrder"
 		  			obj['side'] = (sideId != -1)? model.dishes['side'][sideId].name : "";
 		  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
 		  		}
+		  		else
+		  		{
+		  			obj = {error : "Almeno uno tra primo,secondo, contorno e dessert deve essere selezionato"};
+		  		}
 		  	}
 		  	else
-		  	{
-		  		console.log("h");
+		  	{		  		
 		  		// if some parameters are missing or some of them are empty
 		  		// we return an error message
-		  		obj = {error : "some parameters are empty or not present at all"}
+		  		obj = {error : "Alcuni parametri sono assenti o vuoti"}
 		  	}
-		  	console.log("i");  
 		  	// conversion of the Javascript object to a JSON object
 		  	var json = JSON.stringify(
 			  	obj
@@ -536,8 +531,7 @@ app.post("/addOrder"
 		  	response.end(json);	  
 	  	}
 	  	else
-	  	{
-	  		console.log("l");
+	  	{	  		
 	  		response.redirect("/login");
 	  	} 
 	  }
