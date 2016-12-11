@@ -1,0 +1,153 @@
+swagger: '2.0'
+info:
+  title: MealsDelivery API
+  description: Definition of APIs for SE2 lab excercise
+  version: "1.0.0"
+# the domain of the service
+host: peaceful-sands-94334.herokuapp.com
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /
+produces:
+  - application/json
+consumes:
+  - application/json
+# the APIs
+paths:
+  /getDishes:
+    post:
+      summary: It returns all the available dishes on a specific data
+      description: Given the data as parameter it retrieves all the dishes that a user can order in that date 
+      parameters:
+        - name: date
+          in: formData
+          description: the date for the dishes
+          required: true
+          type: date
+      responses:
+        200:
+          description: Some dishes are present
+          schema:
+            $ref: "#/definitions/DishesList"
+  /addOrder:
+    post:
+      summary: Adds a new order for a user
+      description: Given the data and all the dishes as parameter it adds the order and returns a json object with the details of the added order
+      parameters:
+        - name: date
+          in: formData
+          description: the date for the dishes
+          required: true
+          type: date
+        - name: main
+          in: formData
+          description: the main dish id
+          required: true
+          type: integer
+        - name: second
+          in: formData
+          description: the second dish id
+          required: true
+          type: integer
+        - name: side
+          in: formData
+          description: the side dish id
+          required: true
+          type: integer
+        - name: dessert
+          in: formData
+          description: the dessert id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Order added
+          schema:
+            $ref: "#/definitions/NewOrder"
+          
+#schema definition to be re-used
+definitions:
+  Availability:
+    properties:
+      date:
+        properties:
+          main:
+            type: array
+            description: main dishes available
+            items: 
+              $ref: '#/definitions/Dish'
+          second:
+            type: array
+            description: second dishes available
+            items: 
+              $ref: '#/definitions/Dish'
+          side:
+            type: array
+            description: side dishes available
+            items: 
+              $ref: '#/definitions/Dish'
+          dessert:
+            type: array
+            description: dessert available
+            items: 
+              $ref: '#/definitions/Dish'
+        description: the dishes available
+      
+  Dish:
+    properties:
+      key:
+        type: integer
+        description: the key of the dish
+      name:
+        type: string
+        description: the name of the dish
+      description:
+        type: string
+        description: a description of the dish
+      calorie:
+        type: integer
+        description: amount of calorie
+      protein:
+        type: integer
+        description: amount of protein
+      carbohydrate:
+        type: integer
+        description: amount of carbohydrate
+      fiber:
+        type: integer
+        description: amount of fiber
+      fat:
+        type: integer
+        description: amount of fat
+      ingredients:
+        type: array
+        descriptions: ingredients of the dish
+        items:
+          $ref: '#/definitions/Ingredient'
+  Ingredient:
+    properties:
+      name:
+        type: string
+        description: the name of the ingredient
+      quantity:
+        type: integer
+        description: the quantity of the ingredient
+  NewOrder:
+    properties:
+      date:
+        type: date
+        description: the date of the order
+      main:
+        type: string
+        description: the name of the main dish in the order
+      second:
+        type: string
+        description: the name of the second dish in the order
+      side:
+        type: string
+        description: the name of the side dish in the order
+      dessert:
+        type: string
+        description: the name of the dessert in the order
