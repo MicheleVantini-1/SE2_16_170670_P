@@ -2,6 +2,10 @@ var mainKey;
 var secondKey;
 var sideKey;
 var dessertKey;
+var mainEditedKey;
+var secondEditedKey;
+var sideEditedKey;
+var dessertEditedKey;
 
 
 /**
@@ -89,40 +93,7 @@ function selectDate ()
 
                             // loop that takes all the different dishes
                             // and produces a radio button list
-                            var len = obj[property].length;
-                            for(var i = 0; i < len; i++)
-                            {
-                                var dish = obj[property][i];
-                                html+= '<div class="radio">\
-                                            <label>\
-                                                <input type="radio" '
-                                                    + ' onclick="setDish(\'' + property + '\', ' + dish.key + ')" ' 
-                                                    + ' name="' + property + '" ' 
-                                                    + ' value="' + dish.key + '" /> ' 
-                                                    + dish.name + ' (';
-
-                                // Adding the list of ingredients
-                                var ingredients = obj[property][i].ingredients;
-                                var ingredientsLen = ingredients.length;
-                                var j = 0;
-                                for(; j < ingredientsLen -1; j++)
-                                {
-                                    html += ingredients[j].name + ", ";
-                                }
-                                html += ingredients[j].name;
-
-                                // Closing all the opened tags
-                                html += ')</label>\
-                                        </div>';
-                            }
-
-                            html += '<div class="radio">'+
-                                    + '<label>'
-                                    + '<input type="radio" '
-                                            + ' onclick="setDish(\'' + property + '\', -1)" '
-                                            + ' name="' + property + '" value="-1" /> Non voglio questa portata'
-                                    + '</label>'
-                                    + '</div>';
+                            html += generateRadioButtons(obj, property, false);
                             html += "       </div>\
                                         </div>\
                                     </div>";
@@ -184,7 +155,7 @@ function confirmOrder ()
                         // it means that something goes wrong in the server-side
                         if(isNotUndefined(obj.error))
                         {
-                            // if it is the case w ereturn an error
+                            // if it is the case we ereturn an error
                             document.getElementById("addOrderErrorContainer").innerHTML = errorPanel("Errore: " + obj.error);
                         }
                         else
@@ -193,17 +164,12 @@ function confirmOrder ()
 
                             // if everything is ok with the new order added we add
                             // it to the list of orders
-                            var row = '<tr>';
-                            row += '<td>' + obj.date + '</td>';
-                            row += '<td>' + obj.main + '</td>';
-                            row += '<td>' + obj.second + '</td>';
-                            row += '<td>' + obj.side + '</td>';
-                            row += '<td>' + obj.dessert + '</td>';
-                            row += '</tr>';
+                            var row = generateRow(obj.key, obj.date, obj.main, obj.second, obj.side, obj.dessert);
 
                             document.getElementById('date').value = "dd/mm/yyyy";
                             document.getElementById('ordersTableBody').innerHTML += row;
                             $('#confirmBtnContainer').hide();
+                            $('#dishesContainer').hide();
                         }
                     }
                 }
@@ -228,6 +194,203 @@ function confirmOrder ()
     {
         // otherwise we return an error message to the user
         document.getElementById("addOrderErrorContainer").innerHTML = errorPanel('Errore: Almeno uno piatto tra primi, secondi, contorni e dessert deve essere selezionato per poter fare un ordine') ;
+    }
+}
+
+function deleteOrder (order) {
+    if(confirm("Sei sicuro di voler cancellare questo ordine?"))
+    {
+        // checking the validiy of the input
+        if(parseInt(order) != NaN)
+        {
+            // if the input is valid we remove the order
+            // via sending a request to the server
+
+            // A new AXAJ request is created
+            var xhttp = new XMLHttpRequest();
+            // Setting the destination and the method for the request
+            xhttp.open("POST", "/removeOrder", true);
+
+            // Now we set the callback function that will be triggered
+            // due to the server answer receipt
+            xhttp.onreadystatechange = function() 
+            {
+                if (this.readyState == 4 && this.status == 200) 
+                {
+                    // if the object received is empty
+                    // it means that something goes wrong in the server-side
+                    if(this.responseText === "")
+                    {
+                        // so we return this error to the user
+                        document.getElementById("removeOrderErrorContainer").innerHTML = errorPanel('Errore: qualcosa è andato storto nella tua richiesta, riprova.');
+                    } 
+                    else 
+                    {
+                        var obj = JSON.parse(this.responseText);
+
+                        // if the object received contains an error attribute
+                        // it means that something goes wrong in the server-side
+                        if(isNotUndefined(obj.error))
+                        {
+                            // if it is the case we ereturn an error
+                            document.getElementById("removeOrderErrorContainer").innerHTML = errorPanel("Errore: " + obj.error);
+                        }
+                        else
+                        {
+                            // if everything is ok with the remove operation
+                            // we remove the order also from the list of orders
+                            $("#" + obj.key).remove();
+                        }
+                    }
+                }
+            };
+
+            // sending the request to the server specifing the order
+            // that has to be removed
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            var data = "order=" + order;
+            xhttp.send(data);
+        }
+        else
+        {
+            // if the input is invalid we show to the
+            // user an error message
+            document.getElementById("removeOrderErrorContainer").innerHTML = errorPanel('Errore: qualcosa è andato storto nella tua richiesta, riprova.');
+        }
+    }
+}
+
+function editOrder (order, date) {
+    if(parseInt(order) != NaN)
+    {
+        // A new AXAJ request is created
+        var xhttp = new XMLHttpRequest();
+        // Setting the destination and the method for the request
+        xhttp.open("POST", "/getDishes", true);
+
+        // Now we set the callback function that will be triggered
+        // due to the server answer receipt
+        xhttp.onreadystatechange = function() 
+        {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                // parsing of the json object that is included
+                // in the request
+                var html;
+                // if no answer is provided it means that there isn't
+                // already a menu for the specified date
+                
+                var modal = document.getElementById('editOrderModal');
+                
+                if(this.responseText === "")
+                {
+                    // so we return this error to the user
+                    html = errorPanel('Errore: menu non disponibile per quella data');
+                } 
+                else 
+                {
+                    var obj = JSON.parse(this.responseText);
+                    // if the object received contains an error attribute
+                    // it means that something goes wrong in the server-side
+                    if(typeof obj.error !== 'undefined')
+                    {
+                        // if it is the case we return the error received
+                        html = errorPanel("Errore: "+ obj.error);
+                    }
+                    else
+                    {
+                        // otherwise we fill a div with all the information received
+                        html = '<div class="row" id="editOrder' + order + 'Container">';
+                        for (var property in obj) 
+                        {
+                            if (obj.hasOwnProperty(property)) 
+                            {
+                                html += '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">\
+                                                <div class="panel panel-default dishes-container">\
+                                                    <div class="panel-body">';
+                                switch(property){
+                                    case 'main':
+                                        html += '<h4>Scegli un primo</h4>';
+                                        break;
+                                    case 'second':
+                                        html += '<h4>Scegli un secondo</h4>';
+                                        break;
+                                    case 'side':
+                                        html += '<h4>Scegli un contorno</h4>';
+                                        break;
+                                    case 'dessert':
+                                        html += '<h4>Scegli un dessert</h4>';
+                                        break;
+                                }
+
+                                // loop that takes all the different dishes
+                                // and produces a radio button list
+                                html += generateRadioButtons(obj, property, true);
+
+                                html += "       </div>\
+                                            </div>\
+                                        </div>";
+                            }
+                        }    
+                        html += "</div>";
+                    }
+                }
+
+                modal.innerHTML = html;
+                document.getElementById('editOrderModalFooter').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>'
+                        + '<button type="button" class="btn btn-success" data-dismiss="modal" id="confirmEditBtn" onclick="confirmEdit(' + order + ", '" + date + '\');">Conferma Modifica</button>'; 
+                //document.getElementById('confirmEditBtn').disabled = true;               
+                //$('#editOrder' + order + "Container").slideDown();
+            }
+        };
+
+        // sending the request to the server specifing that it contains
+        // form inputs data
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("date=" + date);
+    }
+    else
+    {
+        document.getElementById(order).innerHTML += errorPanel("Errore: Ordine non valido");
+    }
+}
+
+function confirmEdit(order, date)
+{
+    if(parseInt(order) != NaN)
+    {
+        // A new AXAJ request is created
+        var xhttp = new XMLHttpRequest();
+        // Setting the destination and the method for the request
+        xhttp.open("POST", "/editOrder", true);
+
+        // Now we set the callback function that will be triggered
+        // due to the server answer receipt
+        xhttp.onreadystatechange = function() 
+        {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                var obj = JSON.parse(this.responseText);
+                var row = generateRow(obj.key, obj.date, obj.main, obj.second, obj.side, obj.dessert);
+                document.getElementById(obj.key).innerHTML = row;
+            }
+        };
+
+        // sending the request to the server specifing that it contains
+        // form inputs data
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        var data = "main=" + getRadioValue('editedmain')
+               + "&" + "second=" + getRadioValue('editedsecond')
+               + "&" + "side=" + getRadioValue('editedside')
+               + "&" + "dessert=" + getRadioValue('editeddessert')
+               + "&" + "date=" + date
+               + "&" + "order=" + order;
+        console.log(order);
+        xhttp.send(data);
+    }
+    else
+    {
+        document.getElementById(order).innerHTML += errorPanel("Errore: Ordine non valido");
     }
 }
 
@@ -286,6 +449,30 @@ function setDish (type, key) {
     }
 }
 
+/*
+*   Function that given the type of the dish
+*   and its key sets the proper local variable 
+*   @param type - the type of the dish
+*   @param key - the key of the dish
+*/
+function setEditedDish (type, key) {
+    switch(type)
+    {
+        case 'main':
+            mainEditedKey = parseInt(key);
+            break;
+        case 'second':
+            secondEditedKey = parseInt(key);
+            break;
+        case 'side':
+            sideEditedKey = parseInt(key);
+            break;
+        case 'dessert':
+            dessertEditedKey = parseInt(key);
+            break;
+    }
+}
+
 
 /*
 * Function that produces a panel
@@ -311,4 +498,78 @@ function errorPanel (text) {
 function isNotUndefined(field)
 {
     return (typeof field !== 'undefined');
+}
+
+/*
+*   Function that generates a an html row
+*   that can be inserted in a table and that
+*   represent an order
+*   @param key - the key of the order
+*   @param date - data of the order
+*   @param main - main dish of the order
+*   @param second - second dish of the order
+*   @param side - side dish of the order
+*   @param dessert - dessert of the order
+    @return html row that represent the order
+*/
+function generateRow (key, date, main, second, side, dessert) {
+    var row = '<tr id="' + key + '">';
+    row += '<td>' + date + '</td>';
+    row += '<td>' + main + '</td>';
+    row += '<td>' + second + '</td>';
+    row += '<td>' + side + '</td>';
+    row += '<td>' + dessert + '</td>';
+    row += '<td><button class="btn btn-warning" id="editBtn' + key + '" type="button" data-toggle="modal" data-target="#editModal" onclick="editOrder(' + key + ', \'' + date + '\')">Modifica</button></td>';
+    row += '<td><button class="btn btn-danger" type="button" onclick="deleteOrder(' + key + ')">Elimina</button></td>';
+    row += '</tr>';
+    return row;
+}
+
+/*
+*   Function that generates a set of radio
+*   button on the base of the data contained
+*   in obj and property
+*   @param obj - data to be modelled
+*   @param property - data to be modelled
+*   @param forEdit - boolean that indicates whether to put a label
+*                    edited before some values
+    @return html radio buttons as string
+*/
+function generateRadioButtons (obj, property, forEdit) {
+    var html = "";
+    var len = obj[property].length;
+    for(var i = 0; i < len; i++)
+    {
+        var dish = obj[property][i];
+        html+= '<div class="radio">\
+                    <label>\
+                        <input type="radio" '
+                            + ' onclick="set' + ((forEdit)? "Edited" : "") + 'Dish(\'' + property + '\', ' + dish.key + ')" ' 
+                            + ' name="' + ((forEdit)? "edited" : "") + property + '" ' 
+                            + ' value="' + dish.key + '" /> ' 
+                            + dish.name + ' (';
+
+        // Adding the list of ingredients
+        var ingredients = obj[property][i].ingredients;
+        var ingredientsLen = ingredients.length;
+        var j = 0;
+        for(; j < ingredientsLen -1; j++)
+        {
+            html += ingredients[j].name + ", ";
+        }
+        html += ingredients[j].name;
+
+        // Closing all the opened tags
+        html += ')</label>\
+                </div>';
+    }
+
+    html += '<div class="radio">'+
+            + '<label>'
+            + '<input type="radio" '
+                    + ' onclick="setEditedDish(\'' + property + '\', -1)" '
+                    + ' name="' + ((forEdit)? "edited" : "") + property + '" value="-1" /> Non voglio questa portata'
+            + '</label>'
+            + '</div>';
+    return html;
 }

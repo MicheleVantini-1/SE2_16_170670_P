@@ -38,41 +38,57 @@ function generateRowsFromOrders (user) {
 	if(utility.isNotUndefined(orders[user]))
 	{
 		var list = orders[user];
-		var len = list.length;
 
-		if(len > 0)
-		{
-			res += "<tr>";
+		var rows = "";
+
+		for (var property in list) {
+		    if (list.hasOwnProperty(property)) {
+		    	var date = list[property]['date'];
+				var key = parseInt(property);
+
+				var main = (list[property]['main'] != -1) ? list[property]['main'] : "";
+				var second = (list[property]['second'] != -1) ? list[property]['second'] : "";
+				var side = (list[property]['side'] != -1) ? list[property]['side'] : "";
+				var dessert = (list[property]['dessert'] != -1) ? list[property]['dessert'] : "";
+
+				var mainName = (main !== "") ? dishes['main'][main].name : "";
+				var secondName = (second !== "") ? dishes['second'][second].name : "";
+				var sideName = (side !== "") ? dishes['side'][side].name : "";
+				var dessertName = (dessert !== "") ? dishes['dessert'][dessert].name : "";
+
+				var year = date.getFullYear();
+				var month = ((date.getMonth() +1) > 9) ? (date.getMonth() +1) : ("0" + (date.getMonth() +1));
+				var day = (date.getDate() > 9) ? date.getDate() : ("0" + date.getDate());
+		    	var dateStr = year + "-" + month + "-" + day;
+				rows += generateRow(property, dateStr , mainName, secondName, sideName, dessertName);/*'<tr id="' + property + '">';
+				rows += '<td>' + dateStr + '</td>';
+				rows += '<td>' + mainName + '</td>'
+				rows += '<td>' + secondName + '</td>'
+				rows += '<td>' + sideName + '</td>'
+				rows += '<td>' + dessertName + '</td>'
+	            rows += '<td><button class="btn btn-warning"  id="editBtn' + key + '" type="button" onclick="editOrder(' + property + ', \'' + dateStr +'\')">Modifica</button></td>';
+				rows += '<td><button class="btn btn-danger" type="button" onclick="deleteOrder(' + key + ')">Elimina</button></td>';
+	            rows += '</tr>';*/
+		    }
 		}
 
-		for(var i = 0; i < len; i++)
-		{
-			var date = list[i]['date'];
-			
-			var main = (list[i]['main'] != -1) ? list[i]['main'] : "";
-			var second = (list[i]['second'] != -1) ? list[i]['second'] : "";
-			var side = (list[i]['side'] != -1) ? list[i]['side'] : "";
-			var dessert = (list[i]['dessert'] != -1) ? list[i]['dessert'] : "";
-
-			var mainName = (main !== "") ? dishes['main'][main].name : "";
-			var secondName = (second !== "") ? dishes['second'][second].name : "";
-			var sideName = (side !== "") ? dishes['side'][side].name : "";
-			var dessertName = (dessert !== "") ? dishes['dessert'][dessert].name : "";
-
-			res += '<td>' + date.getFullYear() + "-" + (date.getMonth() +1) + "-" + date.getDate() + '</td>'
-			res += '<td>' + mainName + '</td>'
-			res += '<td>' + secondName + '</td>'
-			res += '<td>' + sideName + '</td>'
-			res += '<td>' + dessertName + '</td>'
-		}
-
-		if(len > 0)
-		{
-			res += "</tr>";
-		}
+		res += rows;
 	}
 
 	return res;
+}
+
+function generateRow (key, date, main, second, side, dessert) {
+    var row = '<tr id="' + key + '">';
+    row += '<td>' + date + '</td>';
+    row += '<td>' + main + '</td>';
+    row += '<td>' + second + '</td>';
+    row += '<td>' + side + '</td>';
+    row += '<td>' + dessert + '</td>';
+    row += '<td><button class="btn btn-warning" id="editBtn' + key + '" type="button" data-toggle="modal" data-target="#editModal" onclick="editOrder(' + key + ', \'' + date + '\')">Modifica</button></td>';
+    row += '<td><button class="btn btn-danger" type="button" onclick="deleteOrder(' + key + ')">Elimina</button></td>';
+    row += '</tr>';
+    return row;
 }
 
 

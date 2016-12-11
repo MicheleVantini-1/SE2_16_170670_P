@@ -56,6 +56,8 @@
 												<th>Secondo</th>
 												<th>Contorno</th>
 												<th>Dessert</th>
+												<th></th>
+												<th></th>
 											</tr>
 										</thead>
 										<tbody id="ordersTableBody">
@@ -69,6 +71,27 @@
 				</div>
 			</div>	
 		</div>
+
+		<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title">Modifica ordine</h4>
+					</div>
+					<div class="modal-body" id="editOrderModal">
+						
+					</div>
+					<div class="modal-footer" id="editOrderModalFooter">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+						<button type="button" class="btn btn-success" id="confirmEditBtn">Conferma Modifica</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
 
 		(: js :)
 		<script src="scripts/indexScript.js"> </script>
