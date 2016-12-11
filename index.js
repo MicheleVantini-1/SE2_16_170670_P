@@ -631,7 +631,6 @@ app.post("/editOrder"
 		  	
 		  	// checking that there all the parameter are specified and
 		  	// not empty
-		  	console.log("A");
 	  		if(utility.isNotUndefined(request.body.main) && request.body.main
 	  			&& utility.isNotUndefined(request.body.second) && request.body.second
 	  			&& utility.isNotUndefined(request.body.side) && request.body.side
@@ -639,7 +638,7 @@ app.post("/editOrder"
 	  			&& utility.isNotUndefined(request.body.date) && request.body.date
 	  			&& utility.isNotUndefined(request.body.order) && request.body.order)
 		  	{		  	
-		  		console.log("B");	
+		  		console.log(request.body.order);	
 		  		// if it is the case we check the validity of the input
 		  		// i.e. at least one among main,second,side and dessert 
 		  		// must be a valid id
@@ -649,11 +648,12 @@ app.post("/editOrder"
 		  		var dessertId = parseInt(request.body.dessert);
 		  		var date;
 		  		var order;
+		  		
 		  		if(parseInt(request.body.order) != NaN && utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
 		  		{
 		  			console.log("C");
 		  			date = new Date(request.body.date);
-		  			order = parseInt(order);
+		  			order = parseInt(request.body.order);
 
 		  			// Editing the order 
 		  			var sess = request.session;
