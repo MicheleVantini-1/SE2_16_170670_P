@@ -386,6 +386,7 @@ app.post("/getDishes"
 		  	var headers = serverConfig.headers;
 		  	headers["Content-Type"] = "application/json";
 		  	var obj;	  	
+		  	var responseCode = 200;
 		  	
 		  	// checking that the date field is present and not empty
 		  	// in the body of the request
@@ -402,19 +403,22 @@ app.post("/getDishes"
 			  		if(date >= now)
 			  		{
 			  			// if it is the case we return 
-			  			// the information about the dishes			  			
-		  				console.log("TEST : " + request.body.date);			  			
+			  			// the information about the dishes		
 			  			obj = model.availability[request.body.date];
 			  		}
 			  		else
 			  		{
 			  			// otherwise we return an error message
 			  			obj = {error : "La data deve essere successiva a quella attuale"}
+			  			// setting the response code to 406 - NOT ACCEPTABLE
+			  			responseCode = 406;
 			  		}	
 		  		}
 		  		else
 		  		{
 		  			obj = {error : "La data passata è in un formato non valido"}
+		  			// setting the response code to 406 - NOT ACCEPTABLE
+			  		responseCode = 406;
 		  		}
 		  		
 		  	}
@@ -422,13 +426,17 @@ app.post("/getDishes"
 		  	{
 		  		// if there is no date in the body of the request or it is empty
 		  		// we return an error message
-		  		obj = {error : "Deve essere fornita una data per poter accedere al menu"}
+		  		obj = {error : "Deve essere fornita una data per poter accedere al menu"};
+		  		// setting the response code to 406 - NOT ACCEPTABLE
+			  	responseCode = 406;
 		  	}
 	  		
 	  		// conversion of the Javascript object to a JSON object
 		  	var json = JSON.stringify(
 			  	obj
 			);
+
+			response.writeHead(responseCode, headers)
 		  	response.end(json);	
 		  		  		
 	  	}

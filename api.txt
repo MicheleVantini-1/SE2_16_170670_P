@@ -69,7 +69,7 @@ paths:
           
 #schema definition to be re-used
 definitions:
-  Availability:
+  DishesList:
     properties:
       date:
         properties:
