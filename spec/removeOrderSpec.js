@@ -1,4 +1,5 @@
 var serverConfig = require("../serverConfig.js");
+var model = require("../model.js");
 
 // Importing lib to send requests
 var request = require("request");
@@ -8,10 +9,16 @@ var request = require("request");
 // requests to maintain the authentication
 var j = request.jar();
 
-describe("Test cases for /getDishes : "
+/*
+	PRECONDITION
+
+	There should be some order to be removed
+
+*/
+
+describe("Test cases for /removeOrder : "
 	, function()
 	  {
-
 	  	describe("Login for testing purpose : "
 		, function()
 		  {
@@ -36,19 +43,32 @@ describe("Test cases for /getDishes : "
 		  	);
 		  }
 		);
+	  	
+	  	/*
+			order 
+				checks : - undefined
+						 - empty
+						 - parseInt != NaN
+			order = undefined
+			order = ""
+			order = "hello world"
+			order = "0ciao"
+			order = 0
+	  	*/
 
-	  	describe("Sending undefined date parameter : "
+		describe("Sending wrong parameter : "
 		, function()
 		  {
-		  	it("undefined date"
+		  	it("order = undefined"
 		  		, function (done) 
 		  		  {
-		  		  	var date; // like this the date value is undefined
-		  		  	
+		  		  	var order;
 		  		  	request.post(
 		  		  		{
-		  		  			url : serverConfig.completeUrl + "/getDishes"
-		  		  			, form: {date : date}
+		  		  			url : serverConfig.completeUrl + "/removeOrder"
+		  		  			, form: {
+			  		  					order : order			  		  						
+		  		  					}
 		  		  			, jar : j
 		  		  		}
 		  		  		, function(error, response, body)
@@ -64,22 +84,24 @@ describe("Test cases for /getDishes : "
 		  }
 		);
 
-		describe("Sending empty date parameter : "
+		describe("Sending wrong parameter : "
 		, function()
 		  {
-		  	it("empty date"
+		  	it("order = ''"
 		  		, function (done) 
 		  		  {
-		  		  	var date = ""; // empty date
-
+		  		  	var order = "";
 		  		  	request.post(
 		  		  		{
-		  		  			url : serverConfig.completeUrl + "/getDishes"
-		  		  			, form: {date : date}
+		  		  			url : serverConfig.completeUrl + "/removeOrder"
+		  		  			, form: {
+			  		  					order : order			  		  						
+		  		  					}
 		  		  			, jar : j
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
+
 			  				expect(response.statusCode).toBe(406);
 
 			  				done();
@@ -90,22 +112,24 @@ describe("Test cases for /getDishes : "
 		  }
 		);
 
-		describe("Sending text that cannot be converted into date : "
+		describe("Sending wrong parameter : "
 		, function()
 		  {
-		  	it("date = 'hello world'"
+		  	it("order = 'hello world'"
 		  		, function (done) 
 		  		  {
-		  		  	var date = "hello world"; 
-
+		  		  	var order = "hello world";
 		  		  	request.post(
 		  		  		{
-		  		  			url : serverConfig.completeUrl + "/getDishes"
-		  		  			, form: {date : date}
+		  		  			url : serverConfig.completeUrl + "/removeOrder"
+		  		  			, form: {
+			  		  					order : order			  		  						
+		  		  					}
 		  		  			, jar : j
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
+
 			  				expect(response.statusCode).toBe(406);
 
 			  				done();
@@ -116,22 +140,24 @@ describe("Test cases for /getDishes : "
 		  }
 		);
 
-		describe("Sending valid date but before today"
+		describe("Sending wrong parameter : "
 		, function()
 		  {
-		  	it("date = '2014-05-04'"
+		  	it("order = '0hello'"
 		  		, function (done) 
 		  		  {
-		  		  	var date = "2014-05-04"; 
-
+		  		  	var order = "0hello";
 		  		  	request.post(
 		  		  		{
-		  		  			url : serverConfig.completeUrl + "/getDishes"
-		  		  			, form: {date : date}
+		  		  			url : serverConfig.completeUrl + "/removeOrder"
+		  		  			, form: {
+			  		  					order : order			  		  						
+		  		  					}
 		  		  			, jar : j
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
+
 			  				expect(response.statusCode).toBe(406);
 
 			  				done();
@@ -142,23 +168,25 @@ describe("Test cases for /getDishes : "
 		  }
 		);
 
-		describe("Sending valid date - today"
+		describe("Sending right parameter : "
 		, function()
 		  {
-		  	it("date = 2016-12-12" 
+		  	it("order = '0'"
 		  		, function (done) 
 		  		  {
-		  		  	var date = "2016-12-12"; 
-
+		  		  	var order = "0";
 		  		  	request.post(
 		  		  		{
-		  		  			url : serverConfig.completeUrl + "/getDishes"
-		  		  			, form: {date : date}
+		  		  			url : serverConfig.completeUrl + "/removeOrder"
+		  		  			, form: {
+			  		  					order : order			  		  						
+		  		  					}
 		  		  			, jar : j
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
-			  				expect(response.statusCode).toBe(200);
+
+			  				expect(response.statusCode).toBe(406);
 
 			  				done();
 			  			  }
@@ -167,23 +195,26 @@ describe("Test cases for /getDishes : "
 		  	);
 		  }
 		);
-		describe("Sending valid date - after today and with menu"
+
+		describe("Sending right parameter : "
 		, function()
 		  {
-		  	it("date = 2017-01-01"
+		  	it("order = 0"
 		  		, function (done) 
 		  		  {
-		  		  	var date = '2017-01-01'; 
-
+		  		  	var order = 0;
 		  		  	request.post(
 		  		  		{
-		  		  			url : serverConfig.completeUrl + "/getDishes"
-		  		  			, form: {date : date}
+		  		  			url : serverConfig.completeUrl + "/removeOrder"
+		  		  			, form: {
+			  		  					order : order			  		  						
+		  		  					}
 		  		  			, jar : j
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
-			  				expect(response.statusCode).toBe(200);
+
+			  				expect(response.statusCode).toBe(406);
 
 			  				done();
 			  			  }
@@ -192,5 +223,6 @@ describe("Test cases for /getDishes : "
 		  	);
 		  }
 		);
+
 	  }
 );

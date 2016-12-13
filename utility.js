@@ -20,17 +20,16 @@ function isNotUndefined(field)
 */
 
 function checkDate (date) {
-	var date;
-	var res = true;
-
-	try{
-		date = new Date(date);	
-	} 
-	catch(err)
+	var date = new Date(date);
+	var res;
+	if(date == 'Invalid Date')
 	{
 		res = false;
 	}
-	
+	else
+	{
+		res = true;
+	}
 	return res;
 }
 

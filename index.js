@@ -436,7 +436,7 @@ app.post("/getDishes"
 			  	obj
 			);
 
-			response.writeHead(responseCode, headers)
+			response.writeHead(responseCode, headers);
 		  	response.end(json);	
 		  		  		
 	  	}
@@ -462,7 +462,8 @@ app.post("/addOrder"
 	  	{
 		  	var headers = serverConfig.headers;
 		  	headers["Content-Type"] = "application/json";
-		  	var obj;	  	
+		  	var responseCode = 200;
+		  	var obj;	  			  	
 		  	
 		  	// checking that there all the parameter are specified and
 		  	// not empty
@@ -471,7 +472,8 @@ app.post("/addOrder"
 	  			&& utility.isNotUndefined(request.body.side) && request.body.side
 	  			&& utility.isNotUndefined(request.body.dessert) && request.body.dessert
 	  			&& utility.isNotUndefined(request.body.date) && request.body.date)
-		  	{		  		
+		  	{
+
 		  		// if it is the case we check the validity of the input
 		  		// i.e. at least one among main,second,side and dessert 
 		  		// must be a valid id
@@ -480,7 +482,7 @@ app.post("/addOrder"
 		  		var sideId = parseInt(request.body.side);
 		  		var dessertId = parseInt(request.body.dessert);
 		  		var date;
-
+		  		
 		  		if(utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
 		  		{
 		  			date = new Date(request.body.date);
@@ -543,6 +545,7 @@ app.post("/addOrder"
 		  		}
 		  		else
 		  		{
+		  			responseCode = 406;
 		  			obj = {error : "Almeno uno tra primo,secondo, contorno e dessert deve essere selezionato"};
 		  		}
 		  	}
@@ -550,6 +553,7 @@ app.post("/addOrder"
 		  	{		  		
 		  		// if some parameters are missing or some of them are empty
 		  		// we return an error message
+		  		responseCode = 406;
 		  		obj = {error : "Alcuni parametri sono assenti o vuoti"}
 		  	}
 		  	// conversion of the Javascript object to a JSON object
@@ -557,6 +561,7 @@ app.post("/addOrder"
 			  	obj
 			);
 
+		  	response.writeHead(responseCode, headers);
 		  	response.end(json);	  
 	  	}
 	  	else
