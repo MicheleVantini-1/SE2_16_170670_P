@@ -45,15 +45,17 @@ describe("Test cases for /removeOrder : "
 		);
 	  	
 	  	/*
-			order 
+			Parameters: order 
 				checks : - undefined
 						 - empty
 						 - parseInt != NaN
-			order = undefined
-			order = ""
-			order = "hello world"
-			order = "0ciao"
-			order = 0
+			Test cases :
+			 - order = undefined
+			 - order = ""
+			 - order = "hello world"
+			 - order = "0hello"
+			 - order = '1'
+			 - order = 2
 	  	*/
 
 		describe("Sending wrong parameter : "
@@ -158,7 +160,7 @@ describe("Test cases for /removeOrder : "
 		  		  		, function(error, response, body)
 			  			  {
 
-			  				expect(response.statusCode).toBe(406);
+			  				expect(response.statusCode).toBe(200);
 
 			  				done();
 			  			  }
@@ -171,10 +173,10 @@ describe("Test cases for /removeOrder : "
 		describe("Sending right parameter : "
 		, function()
 		  {
-		  	it("order = '0'"
+		  	it("order = '1'"
 		  		, function (done) 
 		  		  {
-		  		  	var order = "0";
+		  		  	var order = "1";
 		  		  	request.post(
 		  		  		{
 		  		  			url : serverConfig.completeUrl + "/removeOrder"
@@ -186,7 +188,7 @@ describe("Test cases for /removeOrder : "
 		  		  		, function(error, response, body)
 			  			  {
 
-			  				expect(response.statusCode).toBe(406);
+			  				expect(response.statusCode).toBe(200);
 
 			  				done();
 			  			  }
@@ -199,10 +201,10 @@ describe("Test cases for /removeOrder : "
 		describe("Sending right parameter : "
 		, function()
 		  {
-		  	it("order = 0"
+		  	it("order = 2"
 		  		, function (done) 
 		  		  {
-		  		  	var order = 0;
+		  		  	var order = 2;
 		  		  	request.post(
 		  		  		{
 		  		  			url : serverConfig.completeUrl + "/removeOrder"
@@ -214,7 +216,7 @@ describe("Test cases for /removeOrder : "
 		  		  		, function(error, response, body)
 			  			  {
 
-			  				expect(response.statusCode).toBe(406);
+			  				expect(response.statusCode).toBe(200);
 
 			  				done();
 			  			  }

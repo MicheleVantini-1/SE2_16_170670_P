@@ -480,68 +480,90 @@ app.post("/addOrder"
 		  		var mainId = parseInt(request.body.main);
 		  		var secondId = parseInt(request.body.second);
 		  		var sideId = parseInt(request.body.side);
-		  		var dessertId = parseInt(request.body.dessert);
+		  		var dessertId = parseInt(request.body.dessert);  		  	
+
+		  		var dateObj;
 		  		var date;
-		  		
+
 		  		if(utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
 		  		{
-		  			date = new Date(request.body.date);
-		  			// Adding the order to the user list of orders
-		  			var sess = request.session;
-		  			var key = -1;
-		  			if(utility.isNotUndefined(model.orders[sess.user]))
-		  			{
-		  				// otherwise we simply push the order to the list
-		  				var max = -1;
-		  				for (var property in model.orders[sess.user]) {
-						    if (model.orders[sess.user].hasOwnProperty(property)) {
-						    	var propertyValue = parseInt(property);
-						        if(propertyValue > max)
-						        {
-						        	max = propertyValue;
-						        }
-						    }
-						}
+					dateObj = new Date(request.body.date);
+					date = utility.getOnlyDate(dateObj);
+		  			
+		  			var dishes = model.availability[date];
 
-						max = max + 1;
+		  			// checking that the dishes are effectively
+		  			// part of the menu of the specified date
 
-		  				model.orders[sess.user][max] = {
-		  						date : date
-		  						, main : mainId
-		  						, second : secondId
-		  						, side : sideId
-		  						, dessert : dessertId
-		  				};
+		  			if(((mainId == -1) || (dishes.main.indexOf(model.dishes.main[mainId]) != -1))
+		  				&& ((secondId == -1) || (dishes.second.indexOf(model.dishes.second[secondId]) != -1))
+		  				&& ((sideId == -1) || (dishes.side.indexOf(model.dishes.side[sideId]) != -1))
+		  				&& ((dessertId == -1) || (dishes.dessert.indexOf(model.dishes.dessert[dessertId]) != -1)))
+		  			{			  			
+		  				// if it is the case we proceed with the insert operation
 
-		  				key = max;
-		  			}
-		  			else
-		  			{		  				
-		  				// If the list is is empty we create it
-		  				model.orders[sess.user] = {
-		  					0 : {
+			  			// Adding the order to the user list of orders
+			  			var sess = request.session;
+			  			var key = -1;
+			  			if(utility.isNotUndefined(model.orders[sess.user]))
+			  			{
+			  				// otherwise we simply push the order to the list
+			  				var max = -1;
+			  				for (var property in model.orders[sess.user]) {
+							    if (model.orders[sess.user].hasOwnProperty(property)) {
+							    	var propertyValue = parseInt(property);
+							        if(propertyValue > max)
+							        {
+							        	max = propertyValue;
+							        }
+							    }
+							}
+
+							max = max + 1;
+
+			  				model.orders[sess.user][max] = {
 			  						date : date
 			  						, main : mainId
 			  						, second : secondId
 			  						, side : sideId
 			  						, dessert : dessertId
-		  						}
-		  				};
-		  				key = 0;
+			  				};
+
+			  				key = max;
+			  			}
+			  			else
+			  			{		  				
+			  				// If the list is is empty we create it
+			  				model.orders[sess.user] = {
+			  					0 : {
+				  						date : date
+				  						, main : mainId
+				  						, second : secondId
+				  						, side : sideId
+				  						, dessert : dessertId
+			  						}
+			  				};
+			  				key = 0;
+			  			}
+
+			  			// Building the object with all the name of the ordered dishes
+			  			// that will be added to the html table that shows the list by the client
+			  			obj = {};
+			  			obj['key'] = key;
+			  			obj['date'] = date ;
+			  			obj['main'] = (mainId != -1)? model.dishes['main'][mainId].name : "";
+			  			obj['second'] = (secondId != -1)? model.dishes['second'][secondId].name : "";
+			  			obj['side'] = (sideId != -1)? model.dishes['side'][sideId].name : "";
+			  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
+		  			}
+		  			else
+		  			{
+		  				// if some of the dishes are not part of the menu
+		  				// we return an error message
+		  				responseCode = 406;
+		  				obj = {error : "Tutti i pasti specificati devono essere contenuti nel menu del giorno"};
 		  			}
 
-		  			// Building the object with all the name of the ordered dishes
-		  			// that will be added to the html table that shows the list by the client
-		  			obj = {};
-		  			obj['key'] = key;
-		  			var year = date.getFullYear();
-                    var month = ((date.getMonth() +1) > 9) ? (date.getMonth() +1) : ("0" + (date.getMonth() +1));
-                    var day = (date.getDate() > 9) ? date.getDate() : ("0" + date.getDate());
-		  			obj['date'] = year+ "-" + month + "-" + day ;
-		  			obj['main'] = (mainId != -1)? model.dishes['main'][mainId].name : "";
-		  			obj['second'] = (secondId != -1)? model.dishes['second'][secondId].name : "";
-		  			obj['side'] = (sideId != -1)? model.dishes['side'][sideId].name : "";
-		  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
 		  		}
 		  		else
 		  		{
@@ -584,30 +606,49 @@ app.post("/removeOrder"
 	  	// at first we have to check if the user is logged in
 	  	if(user.isUserLogged(request))
 	  	{
-	  		var obj = {};
+	  		var headers = serverConfig.headers;
+		  	headers["Content-Type"] = "application/json";
+		  	var responseCode = 200;
+		  	var obj;
+
 	  		// checking that the order parameter is present in the request
 	  		if(utility.isNotUndefined(request.body.order) && request.body.order)
 	  		{
 	  			// if it is the case we check the validiy of the input
-	  			if(parseInt(request.body.order) != NaN)
+	  			var order = parseInt(request.body.order);
+	  			console.log('----------------------------');
+	  			console.log(request.body.order);
+	  			console.log(order);
+	  			console.log('----------------------------');
+	  			if(order != NaN)
   				{
-  					// if the parameter is valid we effectively
-  					// delete the order
-  					var order = parseInt(request.body.order);
+  					// if the parameter is valid we have to check
+  					// if the order really exixts
   					var username = request.session.user;
-
-  					delete model.orders[username][order];
-  					obj = {key : order};
+  					if(typeof model.orders[username][order] !== 'undefined')
+  					{	
+  						// if it is the case we effectively delete the order
+  						delete model.orders[username][order];
+  						obj = {key : order};
+  					}
+  					else
+  					{
+  						// otherwise we return an error message
+  						responseCode = 406;
+  						obj = {error : "L'ordine che stai cercando di cancellare non esiste"};
+  					}
   				}
   				else
   				{
   					// if the input is invalid we return an error
+  					responseCode = 406;
   					obj = {error : "Richiesta non valida"};
   				}
 	  		}
 	  		else
 	  		{
 	  			// empty or no parameter in the body of the request
+	  			responseCode = 406;
 	  			obj = {error : "Per poter cancellare un pasto bisogna selezionarne uno"};
 	  		}
 
@@ -616,6 +657,7 @@ app.post("/removeOrder"
 			  	obj
 			);
 
+		  	response.writeHead(responseCode, headers);		  	
 		  	response.end(json);	
 	  	}
 	  	else
@@ -651,7 +693,6 @@ app.post("/editOrder"
 	  			&& utility.isNotUndefined(request.body.date) && request.body.date
 	  			&& utility.isNotUndefined(request.body.order) && request.body.order)
 		  	{		  	
-		  		console.log(request.body.order);	
 		  		// if it is the case we check the validity of the input
 		  		// i.e. at least one among main,second,side and dessert 
 		  		// must be a valid id
@@ -663,23 +704,17 @@ app.post("/editOrder"
 		  		var order;
 		  		
 		  		if(parseInt(request.body.order) != NaN && utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
-		  		{
-		  			console.log("C");
+		  		{		  			
 		  			date = new Date(request.body.date);
 		  			order = parseInt(request.body.order);
 
 		  			// Editing the order 
 		  			var sess = request.session;
 		  			var username = sess.user;
-		  			console.log(username);
-		  			console.log(model.orders);
-		  			console.log(model.orders[username]);
-		  			console.log(order);
-		  			console.log(model.orders[username][order]);
+
 		  			if(utility.isNotUndefined(model.orders[username][order]))
 		  			{
 		  				// if the order exists we edit it
-		  				console.log(model.orders[username]);
 		  				model.orders[username][order] = {
 		  						date : date
 		  						, main : mainId
@@ -687,8 +722,6 @@ app.post("/editOrder"
 		  						, side : sideId
 		  						, dessert : dessertId
 		  				};
-		  				console.log(model.orders[username]);
-		  				console.log("E");
 			  			// Building the object with all the name of the ordered dishes
 			  			// that will be added to the html table that shows the list by the client
 			  			obj = {};
@@ -703,26 +736,23 @@ app.post("/editOrder"
 			  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
 		  			}
 		  			else
-		  			{	
-		  				console.log("D");
+		  			{		  				
 		  				// If the order doesn't exist we return an error
 		  				obj = {error : "L'ordine che hai cercato di modificare non esiste"};
 		  			}
 		  		}
 		  		else
 		  		{
-		  			console.log("F");
 		  			obj = {error : "Almeno uno tra primo,secondo, contorno e dessert deve essere selezionato"};
 		  		}
 		  	}
 		  	else
 		  	{		 
-		  		console.log("G"); 		
 		  		// if some parameters are missing or some of them are empty
 		  		// we return an error message
 		  		obj = {error : "Alcuni parametri sono assenti o vuoti"}
 		  	}
-		  	console.log("H");
+
 		  	// conversion of the Javascript object to a JSON object
 		  	var json = JSON.stringify(
 			  	obj

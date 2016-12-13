@@ -145,10 +145,10 @@ describe("Test cases for /getDishes : "
 		describe("Sending valid date - today"
 		, function()
 		  {
-		  	it("date = 2016-12-12" 
+		  	it("date = 2016-12-13" 
 		  		, function (done) 
 		  		  {
-		  		  	var date = "2016-12-12"; 
+		  		  	var date = "2016-12-13"; 
 
 		  		  	request.post(
 		  		  		{

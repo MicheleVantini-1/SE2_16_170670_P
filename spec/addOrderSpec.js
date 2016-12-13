@@ -9,6 +9,8 @@ var request = require("request");
 // requests to maintain the authentication
 var j = request.jar();
 
+var availability;
+
 describe("Test cases for /addOrder : "
 	, function()
 	  {
@@ -257,20 +259,47 @@ describe("Test cases for /addOrder : "
 		  		  }
 		  	);
 		  }
+		);		
+
+		describe("Sending valid date - after today and with menu"
+		, function()
+		  {
+		  	it("date = 2017-01-01"
+		  		, function (done) 
+		  		  {
+		  		  	var date = '2017-01-01'; 
+
+		  		  	request.post(
+		  		  		{
+		  		  			url : serverConfig.completeUrl + "/getDishes"
+		  		  			, form: {date : date}
+		  		  			, jar : j
+		  		  		}
+		  		  		, function(error, response, body)
+			  			  {
+			  				expect(response.statusCode).toBe(200);
+			  				availability = JSON.parse(body);
+			  				done();
+			  			  }
+		  			);
+		  		  }
+		  	);
+		  }
 		);
 
 		describe("Sending right parameters : "
 		, function()
 		  {
-		  	it("main, second, side, dessert = 1 (we don't know if they're present or not in the menu);  parsable date"
+		  	it("main, second, side, dessert taken from the menu);  parsable date"
 		  		, function (done) 
 		  		  {
 		  		  	var date = "2017-01-01";
- 		  		  	var main = model.availability[date].main[0];
-		  		  	var second = model.availability[date].second[0]; 
-		  		  	var side = model.availability[date].side[0]; 
-		  		  	var dessert = model.availability[date].dishes[0]; 
 
+ 		  		  	var main = availability["main"][0].key;
+		  		  	var second = availability["second"][0].key; 
+		  		  	var side = availability["side"][0].key; 
+		  		  	var dessert = availability["dessert"][0].key; 
+					
 		  		  	request.post(
 		  		  		{
 		  		  			url : serverConfig.completeUrl + "/addOrder"
