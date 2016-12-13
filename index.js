@@ -616,10 +616,6 @@ app.post("/removeOrder"
 	  		{
 	  			// if it is the case we check the validiy of the input
 	  			var order = parseInt(request.body.order);
-	  			console.log('----------------------------');
-	  			console.log(request.body.order);
-	  			console.log(order);
-	  			console.log('----------------------------');
 	  			if(order != NaN)
   				{
   					// if the parameter is valid we have to check
@@ -682,7 +678,8 @@ app.post("/editOrder"
 	  	{
 		  	var headers = serverConfig.headers;
 		  	headers["Content-Type"] = "application/json";
-		  	var obj;	  	
+		  	var responseCode = 200;
+		  	var obj;
 		  	
 		  	// checking that there all the parameter are specified and
 		  	// not empty
@@ -692,7 +689,7 @@ app.post("/editOrder"
 	  			&& utility.isNotUndefined(request.body.dessert) && request.body.dessert
 	  			&& utility.isNotUndefined(request.body.date) && request.body.date
 	  			&& utility.isNotUndefined(request.body.order) && request.body.order)
-		  	{		  	
+		  	{
 		  		// if it is the case we check the validity of the input
 		  		// i.e. at least one among main,second,side and dessert 
 		  		// must be a valid id
@@ -700,56 +697,76 @@ app.post("/editOrder"
 		  		var secondId = parseInt(request.body.second);
 		  		var sideId = parseInt(request.body.side);
 		  		var dessertId = parseInt(request.body.dessert);
+		  		var dateObj
 		  		var date;
 		  		var order;
 		  		
-		  		if(parseInt(request.body.order) != NaN && utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
-		  		{		  			
-		  			date = new Date(request.body.date);
+		  		if((parseInt(request.body.order) != NaN) && utility.checkDate(request.body.date) && (mainId != -1 || secondId != -1 || sideId != -1 || dessertId != -1))
+		  		{
+		  			dateObj = new Date(request.body.date);
+					date = utility.getOnlyDate(dateObj);
+
 		  			order = parseInt(request.body.order);
 
-		  			// Editing the order 
 		  			var sess = request.session;
 		  			var username = sess.user;
 
-		  			if(utility.isNotUndefined(model.orders[username][order]))
+		  			// checking that the new dishes are effectively
+		  			// part of the menu of the specified date
+
+		  			if(((mainId == -1) || (dishes.main.indexOf(model.dishes.main[mainId]) != -1))
+		  				&& ((secondId == -1) || (dishes.second.indexOf(model.dishes.second[secondId]) != -1))
+		  				&& ((sideId == -1) || (dishes.side.indexOf(model.dishes.side[sideId]) != -1))
+		  				&& ((dessertId == -1) || (dishes.dessert.indexOf(model.dishes.dessert[dessertId]) != -1)))
 		  			{
-		  				// if the order exists we edit it
-		  				model.orders[username][order] = {
-		  						date : date
-		  						, main : mainId
-		  						, second : secondId
-		  						, side : sideId
-		  						, dessert : dessertId
-		  				};
-			  			// Building the object with all the name of the ordered dishes
-			  			// that will be added to the html table that shows the list by the client
-			  			obj = {};
-			  			obj['key'] = order;
-			  			var year = date.getFullYear();
-	                    var month = ((date.getMonth() +1) > 9) ? (date.getMonth() +1) : ("0" + (date.getMonth() +1));
-	                    var day = (date.getDate() > 9) ? date.getDate() : ("0" + date.getDate());
-			  			obj['date'] = year+ "-" + month + "-" + day ;
-			  			obj['main'] = (mainId != -1)? model.dishes['main'][mainId].name : "";
-			  			obj['second'] = (secondId != -1)? model.dishes['second'][secondId].name : "";
-			  			obj['side'] = (sideId != -1)? model.dishes['side'][sideId].name : "";
-			  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
-		  			}
-		  			else
-		  			{		  				
-		  				// If the order doesn't exist we return an error
-		  				obj = {error : "L'ordine che hai cercato di modificare non esiste"};
-		  			}
+		  				
+		  				// if it is the case
+			  			if(utility.isNotUndefined(model.orders[username][order]))
+			  			{			  				
+			  				// if the order exists we edit it
+			  				model.orders[username][order] = {
+			  						date : date
+			  						, main : mainId
+			  						, second : secondId
+			  						, side : sideId
+			  						, dessert : dessertId
+			  				};
+				  			// Building the object with all the name of the ordered dishes
+				  			// that will be added to the html table that shows the list by the client
+				  			obj = {};
+				  			obj['key'] = order;
+				  			obj['date'] = date;
+				  			obj['main'] = (mainId != -1)? model.dishes['main'][mainId].name : "";
+				  			obj['second'] = (secondId != -1)? model.dishes['second'][secondId].name : "";
+				  			obj['side'] = (sideId != -1)? model.dishes['side'][sideId].name : "";
+				  			obj['dessert'] = (dessertId != -1)? model.dishes['dessert'][dessertId].name : "";
+			  			}
+			  			else
+			  			{
+			  				// If the order doesn't exist we return an error
+			  				responseCode = 406;
+			  				obj = {error : "L'ordine che hai cercato di modificare non esiste"};
+			  			}
+			  		}
+			  		else
+			  		{
+			  			// if some of the dishes are not part of the menu
+		  				// we return an error message
+		  				responseCode = 406;
+		  				obj = {error : "Tutti i pasti specificati devono essere contenuti nel menu del giorno"};
+			  		}
 		  		}
 		  		else
 		  		{
+		  			responseCode = 406;
 		  			obj = {error : "Almeno uno tra primo,secondo, contorno e dessert deve essere selezionato"};
 		  		}
 		  	}
 		  	else
-		  	{		 
+		  	{	
 		  		// if some parameters are missing or some of them are empty
 		  		// we return an error message
+		  		responseCode = 406;
 		  		obj = {error : "Alcuni parametri sono assenti o vuoti"}
 		  	}
 
@@ -758,6 +775,7 @@ app.post("/editOrder"
 			  	obj
 			);
 
+		  	response.writeHead(responseCode, headers);		
 		  	response.end(json);	  
 	  	}
 	  	else
