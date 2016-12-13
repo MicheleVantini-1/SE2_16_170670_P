@@ -22,7 +22,7 @@ headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Overr
 headers["Content-Type"] = "text/html";
 
 
-var local = true;
+var local = false;
 
 if(local)
 {
