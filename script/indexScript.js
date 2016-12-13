@@ -46,8 +46,6 @@ function selectDate ()
 	{
         if (this.readyState == 4 && this.status == 200) 
         {
-            // parsing of the json object that is included
-            // in the request
             var html;
             // if no answer is provided it means that there isn't
             // already a menu for the specified date
@@ -106,6 +104,20 @@ function selectDate ()
             $('#dishesContainer').slideDown(200);
             $('#confirmBtnContainer').show();
        	}
+        else if (this.readyState == 4 && this.status == 406) 
+        {
+            var html;
+            var obj = JSON.parse(this.responseText);
+            // if the object received contains an error attribute
+            // it means that something goes wrong in the server-side
+            if(typeof obj.error !== 'undefined')
+            {
+                // if it is the case we return the error received
+                html = errorPanel("Errore: "+ obj.error);
+            }
+            document.getElementById("dishesContainer").innerHTML = html;
+            $('#dishesContainer').slideDown(200);
+        }
     };
 
     // sending the request to the server specifing that it contains
@@ -173,6 +185,17 @@ function confirmOrder ()
                         }
                     }
                 }
+                else if (this.readyState == 4 && this.status == 406) 
+                {
+                    var obj = JSON.parse(this.responseText);
+                    // if the object received contains an error attribute
+                    // it means that something goes wrong in the server-side
+                    if(typeof obj.error !== 'undefined')
+                    {
+                        // if it is the case we return an error
+                        document.getElementById("addOrderErrorContainer").innerHTML = errorPanel("Errore: " + obj.error);
+                    }
+                }
             };
             // sending the request to the server specifing that it contains
             // form inputs data
@@ -226,13 +249,15 @@ function deleteOrder (order) {
                     } 
                     else 
                     {
+                        // parsing of the json object that is included
+                        // in the request
                         var obj = JSON.parse(this.responseText);
 
                         // if the object received contains an error attribute
                         // it means that something goes wrong in the server-side
                         if(isNotUndefined(obj.error))
                         {
-                            // if it is the case we ereturn an error
+                            // if it is the case we return an error
                             document.getElementById("removeOrderErrorContainer").innerHTML = errorPanel("Errore: " + obj.error);
                         }
                         else
@@ -241,6 +266,17 @@ function deleteOrder (order) {
                             // we remove the order also from the list of orders
                             $("#" + obj.key).remove();
                         }
+                    }
+                }
+                else if (this.readyState == 4 && this.status == 406) 
+                {
+                    var obj = JSON.parse(this.responseText);
+                    // if the object received contains an error attribute
+                    // it means that something goes wrong in the server-side
+                    if(typeof obj.error !== 'undefined')
+                    {
+                        // if it is the case we return an error
+                        document.getElementById("removeOrderErrorContainer").innerHTML = errorPanel("Errore: " + obj.error);
                     }
                 }
             };
@@ -274,8 +310,6 @@ function editOrder (order, date) {
         {
             if (this.readyState == 4 && this.status == 200) 
             {
-                // parsing of the json object that is included
-                // in the request
                 var html;
                 // if no answer is provided it means that there isn't
                 // already a menu for the specified date
@@ -289,6 +323,8 @@ function editOrder (order, date) {
                 } 
                 else 
                 {
+                    // parsing of the json object that is included
+                    // in the request
                     var obj = JSON.parse(this.responseText);
                     // if the object received contains an error attribute
                     // it means that something goes wrong in the server-side
@@ -337,10 +373,30 @@ function editOrder (order, date) {
                 }
 
                 modal.innerHTML = html;
-                document.getElementById('editOrderModalFooter').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>'
-                        + '<button type="button" class="btn btn-success" data-dismiss="modal" id="confirmEditBtn" onclick="confirmEdit(' + order + ", '" + date + '\');">Conferma Modifica</button>'; 
+                document.getElementById('editOrderModalFooter').innerHTML = '<div class="row">'
+                        + '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="confirmOrderErrorContainer">'
+                        + '</div>'
+                        + '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">'
+                        + '<button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>'
+                        + '<button type="button" class="btn btn-success" id="confirmEditBtn" onclick="confirmEdit(' + order + ", '" + date + '\');">Conferma Modifica</button>'; 
+                        + '</div>'
+                        + '</div>'
                 //document.getElementById('confirmEditBtn').disabled = true;               
                 //$('#editOrder' + order + "Container").slideDown();
+            }
+            else if (this.readyState == 4 && this.status == 406) 
+            {
+                var modal = document.getElementById('editOrderModal');
+                var obj = JSON.parse(this.responseText);
+                // if the object received contains an error attribute
+                // it means that something goes wrong in the server-side
+                if(typeof obj.error !== 'undefined')
+                {
+                    // if it is the case we return an error
+                    html = errorPanel("Errore: "+ obj.error);
+                    modal.innerHTML = html;
+                    document.getElementById('editOrderModalFooter').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Esci</button>';
+                }
             }
         };
 
@@ -370,9 +426,34 @@ function confirmEdit(order, date)
         {
             if (this.readyState == 4 && this.status == 200) 
             {
+                // if an empty response is returned something
+                // went wrong in the server-side
+                if(this.responseText === "")
+                {
+                    // so we return this error to the user
+                    var html = errorPanel('Errore: qualcosa è andato storto nella tua rischiesta');
+                    document.getElementById('confirmOrderErrorContainer').innerHTML = html;
+                } 
+                else
+                {
+                    var obj = JSON.parse(this.responseText);
+                    var row = generateRow(obj.key, obj.date, obj.main, obj.second, obj.side, obj.dessert);
+                    document.getElementById(obj.key).innerHTML = row;
+                    $('#editOrderModal').modal('hide');
+                }
+            }
+            else if (this.readyState == 4 && this.status == 406) 
+            {
+                var modal = document.getElementById('editOrderModal');
                 var obj = JSON.parse(this.responseText);
-                var row = generateRow(obj.key, obj.date, obj.main, obj.second, obj.side, obj.dessert);
-                document.getElementById(obj.key).innerHTML = row;
+                // if the object received contains an error attribute
+                // it means that something goes wrong in the server-side
+                if(typeof obj.error !== 'undefined')
+                {
+                    // if it is the case we return an error
+                    var html = errorPanel("Errore: "+ obj.error);
+                    document.getElementById('confirmOrderErrorContainer').innerHTML = html;
+                }
             }
         };
 

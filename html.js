@@ -32,7 +32,7 @@ navbar = '<nav class="navbar navbar-inverse navbar-fixed-top"> \
 						</li> \
 					</ul> \
 					<div class ="nav navbar-nav navbar-right"> \
-						<h4 class="text-muted">(: user :)&nbsp;&nbsp;&nbsp;&nbsp;<a href="/logout">logout</a></h4> \
+						<h4 class="text-muted">(: user :)&nbsp;&nbsp;&nbsp;&nbsp;<a href="/logout" target="_self">logout</a></h4> \
 					</div> \
 				</div><!--/.nav-collapse --> \
 			</div> \

@@ -104,28 +104,26 @@ function populateModel ()
 	//console.log(availability['2017-01-01']);
 
 	/* testing order */
-	orders[user] = {};
+	/*orders[user] = {};
 
 	for(var i = 1; i <=10; i++)
 	{
 		var date = "2017-01-" + ((i < 10)? '0' + i : i);
 		
-		for(var j = 0; j < 2; j++)
-		{
-			var mainId = availability[date].main[j];
-			var secondId = availability[date].second[j];
-			var sideId = availability[date].side[j];
-			var dessertId = availability[date].dessert[j];
-
-			orders[user][j] = {
-				date : date
-				, main : mainId
-				, second : secondId
-				, side : sideId
-				, dessert : dessertId
-			};
-		}
-	}
+		var mainId = availability[date].main[0];
+		var secondId = availability[date].second[0];
+		var sideId = availability[date].side[0];
+		var dessertId = availability[date].dessert[0];
+			
+		orders[user][i-1] = {
+			date : date
+			, main : mainId
+			, second : secondId
+			, side : sideId
+			, dessert : dessertId
+		};
+		console.log('orders[' + user + '][' + (i-1) + '] = ' + orders[user][i-1]);
+	}*/
 }
 
 

@@ -104,6 +104,7 @@ app.get("/login"
 			, {
 				header : html.header
 				, js : html.js
+				, registerLink : 'href="' + serverConfig.completeUrl + "/register" + '"'
 				, action : 'action="' + serverConfig.completeUrl + "/doLogin" + '"'
 			  }
 			, function (data)
@@ -131,6 +132,7 @@ app.get("/register"
 			, {
 				header : html.header
 				, js : html.js
+				, registerLink : 'href="' + serverConfig.completeUrl + "/login" + '"'
 				, action : 'action="' + serverConfig.completeUrl + "/doRegister" + '"'
 			  }
 			, function (data)
@@ -150,9 +152,10 @@ app.get("/register"
 app.post("/doLogin"
 	, function (request, response)
 	  {
-	  	// if sth goes wrong this variable is set to true 
-	  	// so that the user will be redirected to the login page
-	  	var redirect = false;
+	  	var headers = serverConfig.headers;
+	  	headers["Content-Type"] = "application/json";
+	  	var responseCode = 200;
+	  	var obj = {};
 
 		var username;
 	  	var password;
@@ -166,7 +169,8 @@ app.post("/doLogin"
 
 		    	if(!request.body.username)
 		    	{
-		    		redirect = true;
+		    		responseCode = 406;
+		    		obj = {error : "Username non valido"};
 		    	}
 		    	else
 		    	{
@@ -178,45 +182,60 @@ app.post("/doLogin"
 				    {
 				    	if(!request.body.password)
 				    	{
-				    		redirect = true;
+				    		responseCode = 406;
+		    				obj = {error : "Password non valida"};
 				    	}
 				    	else
 				    	{
 				    		password = request.body.password;
+
 				    		// executing the login function to check if the input data
 				    		// represent a valid user
 				    		var logged = user.login(username, password);
+
 				    		if(logged)
 				    		{
+				    			// if the user is valid we set the user
+				    			// as logged in the session
+
 				    			// Getting the session
 	  							var sess = request.session;
+	  							// setting the user as logged
 				    			sess.user = username;
-				    			response.redirect("/");
-				    			response.end();
 				    		}
 				    		else
 				    		{
-				    			redirect = true;
+				    			responseCode = 406;
+		    					obj = {error : "Username o password non validi"};
 				    		}
 				    	}
+				    }
+				    else 
+				    {
+				    	responseCode = 406;
+		    			obj = {error : "Password non valida"};
 				    }	
 		    	}
 		    }
 		    else
 		    {
-		    	redirect = true;
+		    	responseCode = 406;
+		    	obj = {error : "Username non valido"};
 		    }
 	    }
 	    else
 	    {
-	    	redirect = true;
+	    	responseCode = 406;
+		    obj = {error : "Username o password non validi"};
 	    }
 
-	    if(redirect)
-	    {
-	    	response.redirect("/login");
-			response.end();
-	    }
+	    // conversion of the Javascript object to a JSON object
+	  	var json = JSON.stringify(
+		  	obj
+		);
+
+	  	response.writeHead(responseCode, headers);
+	  	response.end(json);	
 	  }
 
 );
@@ -226,9 +245,13 @@ app.post("/doLogin"
 app.post("/doRegister"
 	, function (request, response)
 	  {
+	  	var headers = serverConfig.headers;
+	  	headers["Content-Type"] = "application/json";
+	  	var responseCode = 200;
+	  	var obj = {};
+
 	  	// if sth goes wrong this variable is set to true 
 	  	// so that the user will be redirected to the login page
-	  	var redirect = false;
 
 		var username;
 	  	var password;
@@ -236,6 +259,7 @@ app.post("/doRegister"
 	  	var email;
 	  	var birthday;
 	  	var phone;
+
 	  	// if a body is prensent in the request and is not empty	  	
 	  	if( typeof request.body !== 'undefined' && request.body)
 	    {	  		
@@ -245,101 +269,132 @@ app.post("/doRegister"
 		    {
 		    	if(!request.body.username)
 		    	{
-		    		console.log("no username");
-		    		redirect = true;
+		    		responseCode = 406;
+		    		obj = {error : "Username non valido"};
 		    	}
 		    	else
 		    	{
 		    		username = request.body.username;
 
 		    		// if password parameter is prensent in the request
-	    			// we process it
+	    			// we process it 
 		    		if( typeof request.body.password !== 'undefined')
 				    {
 				    	if(!request.body.password)
 				    	{
-				    		console.log("no password");
-				    		redirect = true;
+				    		responseCode = 406;
+		    				obj = {error : "Password non valida"};
 				    	}
 				    	else
 				    	{
 				    		password = request.body.password;
 
+				    		// checking that the field in which the user
+				    		// re-enter the password is non empty
 				    		if( typeof request.body.repassword !== 'undefined')
 						    {
 						    	if(!request.body.repassword)
 						    	{
-						    		console.log("no repassword");
-						    		redirect = true;
+						    		responseCode = 406;
+		    						obj = {error : "Devi reinserire la password anche nel secondo campo"};
 						    	}
 						    	else
 						    	{
 						    		repassword = request.body.repassword;
+
+						    		// checking that the field in which the user
+				    				// re-enter the password equal to the first password entered
 						    		if(password === repassword)
 						    		{
+						    			// checking that birthday field is non empty
 						    			if( typeof request.body.birthday !== 'undefined')
 									    {
 									    	if(!request.body.birthday)
 									    	{
-									    		console.log("no birthday");
-									    		redirect = true;
+									    		responseCode = 406;
+		    									obj = {error : "Devi inserire la tua data di nascita"};
 									    	}
 									    	else
 									    	{
 									    		birthday = request.body.birthday;
-									    		if( typeof request.body.phone !== 'undefined')
-											    {
-											    	if(request.body.phone)
-											    	{
-											    		phone = request.body.phone;
-											    	}
-											    	else
-											    	{
-											    		console.log("no phone");
-											    		phone = null;
-											    	}
-											    }
 
-											    var res = user.register(username, password, birthday, phone);
-											    if(!res)
-											    {
-											    	console.log("the user already exists");
-											    	redirect = true;
-											    }
+									    		// checking that the birthday field is a valid date
+									    		if(utility.checkDate(birthday))
+									    		{
+									    			// checking that the phone field is a valid date
+										    		if( typeof request.body.phone !== 'undefined')
+												    {
+												    	if(request.body.phone)
+												    	{
+												    		phone = request.body.phone;
+												    	}
+												    }
+
+												    // if everything is ok we try to register the user
+												    var res = user.register(username, password, birthday, phone);
+
+												    // if something went wrong during the registration
+												    // we return an error message to the user
+												    if(!res)
+												    {
+												    	responseCode = 406;
+		    											obj = {error : "Un utente con quel username esiste già"};
+												    }									    			
+									    		}
+									    		else
+									    		{
+									    			responseCode = 406;
+		    										obj = {error : "Data di nascita non valida"};
+									    		}
+
 									    	}
+									    }
+									    else
+									    {
+									    	responseCode = 406;
+		    								obj = {error : "Devi inserire la tua data di nascita"};
 									    }
 						    		}
 						    		else
 						    		{
-						    			console.log("the 2 psw don't match");
-						    			redirect = true;
+						    			responseCode = 406;
+		    							obj = {error : "Le 2 password non coincidono"};
 						    		}
 						    	}
 						    }
+						    else
+						    {
+						    	responseCode = 406;
+		    					obj = {error : "Devi reinserire la password anche nel secondo campo"};
+						    }
 				    	}
 				    }	
+				    else
+				    {
+				    	responseCode = 406;
+		    			obj = {error : "Password non valida"};
+				    }
 		    	}
 		    }
 		    else
 		    {		    
-		    	redirect = true;
+		    	responseCode = 406;
+		    	obj = {error : "Username non valido"};
 		    }
 	    }
 	    else
 	    {
-	    	redirect = true;
+	    	responseCode = 406;
+		    obj = {error : "Dati non validi"};
 	    }
 
-	    if(redirect)
-	    {
-	    	response.redirect("/register");
-			response.end();
-	    }
-	    else
-	    {
-	    	response.redirect("/login");
-	    	response.end();
-	    }
+	    // conversion of the Javascript object to a JSON object
+	  	var json = JSON.stringify(
+		  	obj
+		);
+
+	  	response.writeHead(responseCode, headers);
+	  	response.end(json);	
 	  }
 
 );
