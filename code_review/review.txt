@@ -1,10 +1,51 @@
-All comments are missing
+- Comments before any function is missing
 
-All input are "sanitized":
-	row(46) - The only checks on username and password are the ones that
-			  verify that the two input field are not null, no operations
-			  of sanitization are done
+- Comments inside any function is missing
 
-All the code is online on Github
+- references to staging/development environment (line 24)
 
-The code is quite well structured, consistent in style
+- the code is not very well-structured, e.g. there should be more spaces
+  when some operators are used (aritmetic, assignment, list of parameters, etc.) 
+  that would  make the code more easy to read
+
+- Naming conventions are not always very clear, e.g for the following lines of code
+
+	var tests = data.getUserTests(request.session.auth);
+	var json = {tests:[]};
+	for(var i=0;i<tests.length;i++)
+	{
+		json.tests.push(data.testToJSON(tests[i]));
+	}
+  (from line 150 to 155)
+
+  in this case using 'tests' and 'json.tests' could make the code a bit difficult to
+  read, for example if this function is extended and more statement with these two
+  names are used could be difficult at some poit to understand what is going on there
+
+- All input are not so well "sanitized":
+  The only checks on username and password are the ones that
+  verify that the two input field are not null, no operations
+  of sanitization are done (line 48)
+  Also in other points of the code, for example from line 88 to 108, very few controls
+  are done on the inputs
+
+- Code repetitions:
+  Every time that in the code a response is produces with a particular status code, all
+  these code instead of being repeted through the code they could be declared once and
+  then you can use their variables names to refer to them. Furthermore, this practise 
+  could result in a more meaningful code if meaningful names are given to these variables.
+
+- JSHint logs (we report only the meaningful ones)
+	Nine warnings
+		32	Use '!==' to compare with 'null'.
+		48	Use '!==' to compare with 'null'.
+		48	Use '!==' to compare with 'null'.
+		49	Misleading line break before '&&'; readers may interpret this as an expression boundary.
+		49	Use '===' to compare with 'null'.
+		67	Use '!==' to compare with 'null'.
+		114	Use '===' to compare with 'null'.
+		129	'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').
+		169	Use '!==' to compare with 'null'.
+
+	So a better practise that result from this analysis is to use !== and === operators
+	when you have to do with null values
