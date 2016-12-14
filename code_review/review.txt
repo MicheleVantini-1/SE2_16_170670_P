@@ -49,3 +49,5 @@
 
 	So a better practise that result from this analysis is to use !== and === operators
 	when you have to do with null values
+
+Other checks in the list provided in class seem to be ok, no other relevant problems should be present.
