@@ -38,7 +38,7 @@ describe("Test cases for /removeOrder : "
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
-			  				expect(response.statusCode).toBe(302);
+			  				expect(response.statusCode).toBe(200);
 
 			  				done();
 			  			  }

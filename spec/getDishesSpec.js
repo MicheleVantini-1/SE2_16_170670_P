@@ -1,4 +1,5 @@
 var serverConfig = require("../serverConfig.js");
+var utility = require("../utility.js");
 
 // Importing lib to send requests
 var request = require("request");
@@ -7,6 +8,7 @@ var request = require("request");
 // maintained across the different
 // requests to maintain the authentication
 var j = request.jar();
+var today = utility.getOnlyDate(new Date());
 
 describe("Test cases for /getDishes : "
 	, function()
@@ -145,10 +147,10 @@ describe("Test cases for /getDishes : "
 		describe("Sending valid date - today"
 		, function()
 		  {
-		  	it("date = 2016-12-13" 
+		  	it("date = " + today
 		  		, function (done) 
 		  		  {
-		  		  	var date = "2016-12-13"; 
+		  		  	var date = today;
 
 		  		  	request.post(
 		  		  		{

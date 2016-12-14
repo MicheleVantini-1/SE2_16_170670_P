@@ -439,7 +439,7 @@ function confirmEdit(order, date)
                     var obj = JSON.parse(this.responseText);
                     var row = generateRow(obj.key, obj.date, obj.main, obj.second, obj.side, obj.dessert);
                     document.getElementById(obj.key).innerHTML = row;
-                    $('#editOrderModal').modal('hide');
+                    $('#editModal').modal('hide');
                 }
             }
             else if (this.readyState == 4 && this.status == 406) 

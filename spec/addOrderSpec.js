@@ -30,7 +30,7 @@ describe("Test cases for /addOrder : "
 		  		  		}
 		  		  		, function(error, response, body)
 			  			  {
-			  				expect(response.statusCode).toBe(302);
+			  				expect(response.statusCode).toBe(200);
 
 			  				done();
 			  			  }
