@@ -31,6 +31,10 @@ paths:
           description: Some dishes are present
           schema:
             $ref: "#/definitions/DishesList"
+        406:
+          description: Parameters not acceptable
+          schema:
+            $ref: "#/definitions/Error"
   /addOrder:
     post:
       summary: Adds a new order for a user
@@ -66,6 +70,73 @@ paths:
           description: Order added
           schema:
             $ref: "#/definitions/NewOrder"
+        406:
+          description: Parameters not acceptable
+          schema:
+            $ref: "#/definitions/Error"
+  /removeOrder:
+    post:
+      summary: Remove an order of a user
+      description: Given the number of the order this remove the order associated to the logged user (if the order really exists)
+      parameters:
+        - name: order
+          in: formData
+          description: the id of the order
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Order removed
+          schema:
+            $ref: "#/definitions/OldOrder"
+        406:
+          description: Parameters not acceptable
+          schema:
+            $ref: "#/definitions/Error"
+  /editOrder:
+    /post:
+      summary: Edit an order of a user
+      description: Given the number of the order and the new information about the order this edit the order associated to the logged user (if the order really exists)
+      parameters:
+        - name: order
+          in: formData
+          description: the id of the order
+          required: true
+          type: integer
+        - name: date
+          in: formData
+          description: the date for the dishes
+          required: true
+          type: date
+        - name: main
+          in: formData
+          description: the main dish id
+          required: true
+          type: integer
+        - name: second
+          in: formData
+          description: the second dish id
+          required: true
+          type: integer
+        - name: side
+          in: formData
+          description: the side dish id
+          required: true
+          type: integer
+        - name: dessert
+          in: formData
+          description: the dessert id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Order removed
+          schema:
+            $ref: "#/definitions/NewOrder"
+        406:
+          description: Parameters not acceptable
+          schema:
+            $ref: "#/definitions/Error"
           
 #schema definition to be re-used
 definitions:
@@ -151,3 +222,13 @@ definitions:
       dessert:
         type: string
         description: the name of the dessert in the order
+  OldOrder:
+    properties:
+      date:
+        type: integer
+        description: the id of the order deleted
+  Error:
+    properties:
+      error:
+        type: string
+        description: the error occured

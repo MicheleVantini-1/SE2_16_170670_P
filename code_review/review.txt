@@ -1,0 +1,10 @@
+All comments are missing
+
+All input are "sanitized":
+	row(46) - The only checks on username and password are the ones that
+			  verify that the two input field are not null, no operations
+			  of sanitization are done
+
+All the code is online on Github
+
+The code is quite well structured, consistent in style
